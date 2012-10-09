@@ -1,0 +1,26 @@
+function ax2ax(plSource,axDest,addtitle)
+% Copy plot to another axes.
+% Still doesn't do legend. Don't know abouut colorbars, but hey its a start.
+
+ax = get(plSource,'Parent');
+% Find children, copy non-text ones.
+kids=allchild(ax);
+nontextkids=kids(~strcmp(get(kids,'type'),'text'));
+copyobj(nontextkids,axDest);
+
+% Axes Directions (may need to add other properties)
+meth={'YDir','XLim','YLim','XGrid','YGrid','XMinorGrid','YMinorGrid','XTick','YTick','XTickLabel','YTickLabel'};
+cellfun(@(m)set(axDest,m,get(Source,m)),meth);
+
+% Special treatment for text-children
+%subplot(hDest)
+xlabel(hDest,get(get(hSource,'xlabel'),'string'));
+ylabel(hDest,get(get(hSource,'ylabel'),'string'));
+title(hDest,[get(get(hSource,'title'),'string') ' ' addtitle]);
+
+%ylim=get(gca,'YLim')
+%saved_axis(3,:)=[min(x) max(x) 0.98*min_y 1.02*max_y];
+%axis(hDest,[]);
+set(hDest,'XMinorGrid','on','YMinorGrid','on');
+
+end 
