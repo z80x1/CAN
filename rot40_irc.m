@@ -1,7 +1,8 @@
+%%
 %rot40_irc: analysis of IRC 
 %
-% Version 1.0    
-% Last modified  R O Zhurakivsky 2011-07-10
+% Version 1.1
+% Last modified  R O Zhurakivsky 2011-10-09
 % Created        R O Zhurakivsky 2011-03-21
 
 format compact
@@ -30,6 +31,7 @@ PLOTTYPE_EHB_CH=16;
 PLOTTYPE_dAH_CH=17;
 PLOTTYPE_max=18;
 
+flags={};
 %-------------------------------------------------------------------
 if 0
     workname='irc120321'%#ok
@@ -82,10 +84,23 @@ elseif 0
 %    indir='E:\work\Brovarets\120216_IRC_Hyp\Hyp_Hyp_eps4_tight_int'%#ok
     indir='E:\work\Brovarets\120216_IRC_Hyp\Hyp_O_Thy_eps4_tight_int'%#ok
     workname='irc_b3lyp_tight_eps4'%#ok
-elseif 1
+elseif 0
     complextype='HypHyp';
-    indir='E:\work\Brovarets\120216_IRC_Hyp\Hyp_Hyp_tight_int'
-    workname='irc_b3lyp_tight_int'%#ok
+    if 0
+        indir='E:\work\Brovarets\120216_IRC_Hyp\Hyp_Hyp_tight_int'
+        workname='irc_b3lyp_tight_int'%#ok
+    elseif 0
+        indir='E:\work\Brovarets\120216_IRC_Hyp\Hyp_Hyp_eps4_tight_int'
+        workname='irc_b3lyp_tight_eps4'%#ok
+    elseif 1
+        indir='E:\work\Brovarets\120216_IRC_Hyp\Hyp-dimer'
+        workname='irc_b3lyp_631gdp'%#ok
+        flags.semilogy_for_ellipticity=1;
+    end
+elseif 1
+    complextype='HypCyt';
+    indir='E:\work\Brovarets\120216_IRC_Hyp\Hyp_Cyd\tight_int_eps4'
+    workname='irc_b3lyp_tight_eps4'%#ok
 end
 
 flplot=1    %#ok
@@ -156,16 +171,42 @@ if strcmp(complextype,'HypCyt')
     disp(['HypCyt pair job detected using predefined bondlist, anglist and aimbondlist'])
     bondlist = [12 24]; %R_HH
     anglist  = [ 1 12 24; 12 24 13]; %alpha1, alpha2
+    molpind={};
+    molpind{6}='C6';
+    molpind{7}='O6';
+    molpind{8}='N1';
+    molpind{9}='C2';
+    molpind{19}='N4';
+    molpind{21}='N3';
+    molpind{23}='O2';
 elseif strcmp(complextype,'HypHyp')
     %glicosidic parameters
     disp(['HypHyp pair job detected using predefined bondlist, anglist and aimbondlist'])
     bondlist = [13 25]; %R_HH
     anglist  = [ 3 13 25; 13 25 24]; %alpha1, alpha2
+    molpind={};
+    molpind{7}='C6';
+    molpind{8}='O6';
+    molpind{9}='N1';
+    molpind{11}='C2';
+    molpind{16}='N1';
+    molpind{17}='C2';
+    molpind{27}='C6';
+    molpind{28}='O6';
 elseif strcmp(complextype,'HypThy')
     %glicosidic parameters
     disp(['HypThy pair job detected using predefined bondlist, anglist and aimbondlist'])
     bondlist = [13 21]; %R_HH
     anglist  = [ 1 13 21; 13 21 20]; %alpha1, alpha2
+    molpind={};
+    molpind{6}='C6';
+    molpind{7}='O6';
+    molpind{8}='N1';
+    molpind{14}='O4';
+    molpind{16}='C4';
+    molpind{17}='N3';
+    molpind{18}='C2';
+    molpind{19}='O2';
 elseif strcmp(complextype,'AT')
     disp(['AT pair job detected using predefined bondlist, anglist and aimbondlist'])
     %glicosidic parameters
@@ -425,16 +466,6 @@ end
 %           'Visible','off');
     a_tmp = axes();
 
-    %figure and axes for plotting to screen
-    f_irc = figure('Name',['IRC analyzing: ' fnameshort],...
-           'NumberTitle','off',...
-           'PaperOrientation','landscape',...
-           'PaperType','A4',...
-           'Toolbar','none',...
-           'Position',pos,...
-           'PaperUnits','normalized',...
-           'PaperPosition',[0.01 0.01 0.98 0.98]);
-%    set(gcf,'Color','w');
     if exist(psfile,'file')
         movefile(psfile,psfilebkp);
     end
@@ -443,9 +474,7 @@ end
     data = {[]};
        
 %----------------------Energy and dipole moment----------------------------------------------------
-%    hA(1) = subplot(2,2,1);
-    figure(f_irc);
-    hA(1) = subplot('position',[bwl main_h+bhb 0.5-bwl-bwr 1-main_h-bhb-bht]);
+    figure(f_tmp);
     [x,sort_ind]=sort([ircdb.irc]);
     y=[ircdb.energy];
     y=y(sort_ind);
@@ -458,22 +487,13 @@ end
 
     txt = 'energy, kcal/mol';
     data(1,col)={txt};   data(2:numel(ircdb)+1,col) = num2cell(y); col=col+1;
-    legs_plot1 = {};
-    legs_plot1{end+1} = txt; %#ok
     
     h_plot = plot(x,y,'r.-','LineWidth',lw);
     saved_axis(1,:)=[min(x) max(x) 0 1.05*max(y)];
     axis(saved_axis(1,:));
-    legend(legs_plot1,'Location','Best');
 
-    grid on
-    title(['Reaction path following: energy (kcal/mol) versa IRC']) %#ok
-%    xlabel('IRC');
     ylabel('\Delta E, kcal/mol');
     
-    figure(f_tmp);
-    pl2ax(h_plot,a_tmp); %copy plot to PS axes
-    grid off
     set(gca,'Box','on','XMinorTick','on','YMinorTick','on');
     xlabel('IRC, a.m.u.^{1/2}*bohr');
     title('');
@@ -481,12 +501,6 @@ end
 %    clf(f_tmp);
     
     
-%    hA(2) = subplot(2,2,2);
-    figure(f_irc);
-    hA(2) = subplot('position',[0.5 main_h 0.5 1-main_h-bht]);
-    plotmol( ircdb(1), 'r', 0, 1, 0, hA(2) );
-    rotate3d(hA(2));
-
     %--------------------------------------------------------------------------
     %analyzing Gaussian SP output files for dipole moment and charges
     dirlist = dir([indir filesep 'sp' ]);
@@ -926,616 +940,430 @@ end
     end %icp=1:size(uniqCPind,1)
     uniqHBind = unique(allHBind,'rows'); %unique AH...B bonds
     
-    plots={};
-    plots.leg={};
-    plots.ylabel={};
-    plots.yshort={};
-    plots.type=[];
-    plots.h_plot=[];
-    plots.x={};
-    plots.y={};
-    ind_plot=0;
 
+%-----------------------------plotting------------------------------------------  
+    
+    [x,sort_ind]=sort([ircdb.irc]);
+    min_x=min(x);
+    max_x=max(x);
+    xlabel_str='IRC, a.m.u.^{1/2}*bohr';
+    
+%-----------------------------Dipole moment plotting------------------------------------------  
+    y=repmat(NaN,size(x));
+
+    for iirc=1:numel(sort_ind) % over IRC points
+        y(iirc) = ircdb(sort_ind(iirc)).DM;%#ok
+    end
+    txt = ['Dipole monent, Debay' ];%#ok
+    data(1,col)={txt};   data(2:numel(ircdb)+1,col) = num2cell(y); col=col+1;
+
+    cla
+    pointsign='.-';
+    color='green';
+    plot( a_tmp, x,y,pointsign,'Color',color,'LineWidth',lw);    
+    my_axis([min_x max_x min(y) max(y)]);
+    grid off
+    set(a_tmp,'Box','on','XMinorTick','on','YMinorTick','on');
+    xlabel(a_tmp,xlabel_str);
+    ylabel(a_tmp,'Dipole moment, D');
+    print(f_tmp,'-dpsc2', '-append', '-r300', psfile);
+
+            
+  
 %------------------------Distancies, angles, charges figure-----------------------------------------------  
-%    hA(3) = subplot(2,2,3);
-    hA(3) = subplot('position',[0+bwl 0+bhb 0.5-bwl-bwr main_h-bhb-bht]);
-%    legs={}; %legends array
-%    h_plots = []; %array of plot handles
-    min_y = NaN;
-    max_y = NaN;
     
     if ~isempty(uniqHBind)
-        [x,sort_ind]=sort([ircdb.irc]);  
-    %    y=[];
-        fl_firstplot=1;
 
-        % A-H-B
-        for iHB=1:size(uniqHBind,1) %over all H-bonds
-            ind_plot=ind_plot+1;
-            row = uniqHBind(iHB,:);
-            y=[];
-            for iirc=sort_ind % over IRC points
-                y(end+1) = valang(ircdb(iirc), row(1), row(2), row(3));%#ok
-            end
-            plots.ylabel{ind_plot}='\angle AH…B, °';%#ok
-            plots.yshort{ind_plot}=[atomlabel(ircdb(1),row(1)) ',' atomlabel(ircdb(1),row(2))...
-                    ',' atomlabel(ircdb(1),row(3))];%#ok
-            txt = ['A-H-B (' plots.yshort{ind_plot} '), °' ];
-            plots.type(ind_plot)=PLOTTYPE_aAHB;
-            data(1,col)={txt};   data(2:numel(ircdb)+1,col) = num2cell(y); col=col+1;
-            plots.x{ind_plot}=x;
-            plots.y{ind_plot}=y;
-        end
-
-        % A...H, H...B
-        uniqAH=unique([uniqHBind(:,1:2); uniqHBind(:,2:3)],'rows');
-        for iHB=1:size(uniqAH,1) 
-            ind_plot=ind_plot+1;
-            row = uniqAH(iHB,:);
-            y=[];
-            for iirc=sort_ind % over IRC points
-                y(end+1) = adist(ircdb(iirc), row(1), row(2));%#ok
-            end
-            plots.ylabel{ind_plot}='dAH/HB, A';%#ok
-            plots.yshort{ind_plot}=[atomlabel(ircdb(1),row(1)) ',' atomlabel(ircdb(1),row(2))];%#ok
-            txt = ['A...H (' plots.yshort{ind_plot} '), A' ];
-            if ircdb(1).labels{row(1)}=='C' || ircdb(1).labels{row(2)}=='C'
-                plots.type(ind_plot)=PLOTTYPE_dAH_CH;
-            else
-                plots.type(ind_plot)=PLOTTYPE_dAH;
-            end;
-            data(1,col)={txt};   data(2:numel(ircdb)+1,col) = num2cell(y); col=col+1;
-            plots.x{ind_plot}=x;
-            plots.y{ind_plot}=y;
-        end
-           
-        % A...B
+        %---------------------------- A...B --------------------------------
         uniqAB=unique([uniqHBind(:,1) uniqHBind(:,3)],'rows');
+        min_y=NaN; max_y=NaN;
+        buf={};buf.h_plots=[];buf.legs={};
+        cla
+        hold on
         for iHB=1:size(uniqAB,1) 
-            ind_plot=ind_plot+1;
             row = uniqAB(iHB,:);
-            y=[];
-            for iirc=sort_ind % over IRC points
-                y(end+1) = adist(ircdb(iirc), row(1), row(2));%#ok
+            y=repmat(NaN,size(x));
+            for iirc=1:numel(sort_ind) % over IRC points
+                y(iirc) = adist(ircdb(sort_ind(iirc)), row(1), row(2));%#ok
             end
-            plots.ylabel{ind_plot}='dAB, A';%#ok
-            plots.yshort{ind_plot}=[atomlabel(ircdb(1),row(1)) ',' atomlabel(ircdb(1),row(2))];%#ok
-            txt = ['A...B (' plots.yshort{ind_plot} '), A' ];
-            plots.type(ind_plot)=PLOTTYPE_dAB;
+            leg=[atomlabel(ircdb(1),row(1)) ',' atomlabel(ircdb(1),row(2))];%#ok
+            txt = ['A...B (' leg '), A' ];
             data(1,col)={txt};   data(2:numel(ircdb)+1,col) = num2cell(y); col=col+1;
-            plots.x{ind_plot}=x;
-            plots.y{ind_plot}=y;
+            
+            pointsign='.-';
+            color=pcolor{mod(iHB-1,numel(pcolor))+1};
+            buf.h_plots(end+1)=plot( a_tmp, x,y, pointsign, 'Color',color, 'LineWidth',lw);    
+            buf.legs{end+1}=leg;%#ok
+            min_y = min([min_y min(y)]);
+            max_y = max([max_y max(y)]);
         end
-        
-        % charges on atoms
+        my_axis([min_x max_x min_y max_y]);
+        grid off
+        set(a_tmp,'Box','on','XMinorTick','on','YMinorTick','on');
+        xlabel(a_tmp,xlabel_str);
+        ylabel(a_tmp,'dAB, A');
+        legend(buf.h_plots, buf.legs, 'FontSize',7, 'Location','Best');
+        print(f_tmp,'-dpsc2', '-append', '-r300', psfile);
+
+        %---------------------------- A...H, H...B ------------------------
+        uniqAH=unique([uniqHBind(:,1:2); uniqHBind(:,2:3)],'rows');
+        min_y=NaN; max_y=NaN;
+        buf={};buf.h_plots=[];buf.legs={};
+        cla
+        hold on
+        for iHB=1:size(uniqAH,1) 
+            row = uniqAH(iHB,:);
+            y=repmat(NaN,size(x));
+            for iirc=1:numel(sort_ind) % over IRC points
+                y(iirc) = adist(ircdb(sort_ind(iirc)), row(1), row(2));%#ok
+            end
+            leg=[atomlabel(ircdb(1),row(1)) ',' atomlabel(ircdb(1),row(2))];%#ok
+            txt = ['A...H (' leg '), A' ];
+            data(1,col)={txt};   data(2:numel(ircdb)+1,col) = num2cell(y); col=col+1;
+            
+            pointsign='.-';
+            color=pcolor{mod(iHB-1,numel(pcolor))+1};
+            buf.h_plots(end+1)=plot( a_tmp, x,y, pointsign, 'Color',color, 'LineWidth',lw);    
+            buf.legs{end+1}=leg;%#ok
+            min_y = min([min_y min(y)]);
+            max_y = max([max_y max(y)]);
+        end
+        my_axis([min_x max_x min_y max_y]);
+        grid off
+        set(a_tmp,'Box','on','XMinorTick','on','YMinorTick','on');
+        xlabel(a_tmp,xlabel_str);
+        ylabel(a_tmp,'dAH/HB, A');
+        legend(buf.h_plots, buf.legs, 'FontSize',7, 'Location','Best');
+        print(f_tmp,'-dpsc2', '-append', '-r300', psfile);
+
+        %---------------------------- A-H-B -------------------------------
+        min_y=NaN; max_y=NaN;
+        buf={};buf.h_plots=[];buf.legs={};
+        cla
+        hold on
+        for iHB=1:size(uniqHBind,1) %over all H-bonds
+            row = uniqHBind(iHB,:);
+            y=repmat(NaN,size(x));
+            for iirc=1:numel(sort_ind) % over IRC points
+                y(iirc) = valang(ircdb(sort_ind(iirc)), row(1), row(2), row(3));%#ok
+            end
+            leg=[atomlabel(ircdb(1),row(1)) ',' atomlabel(ircdb(1),row(2))...
+                    ',' atomlabel(ircdb(1),row(3))];%#ok
+            txt = ['A-H-B (' leg '), °' ];
+            data(1,col)={txt};   data(2:numel(ircdb)+1,col) = num2cell(y); col=col+1;
+            
+            pointsign='.-';
+            color=pcolor{mod(iHB-1,numel(pcolor))+1};
+            buf.h_plots(end+1)=plot( a_tmp, x,y, pointsign, 'Color',color, 'LineWidth',lw);    
+            buf.legs{end+1}=leg;%#ok
+            min_y = min([min_y min(y)]);
+            max_y = max([max_y max(y)]);
+        end
+        my_axis([min_x max_x min_y max_y]);
+        grid off
+        set(a_tmp,'Box','on','XMinorTick','on','YMinorTick','on');
+        xlabel(a_tmp,xlabel_str);
+        ylabel(a_tmp,'\angle AH…B, °');
+        legend(buf.h_plots, buf.legs, 'FontSize',7, 'Location','Best');
+        print(f_tmp,'-dpsc2', '-append', '-r300', psfile);
+    
+        %---------------------------- charges on atoms - hydrogens
         uniqatoms=unique(uniqHBind);
-        for iHB=1:size(uniqatoms,1) 
-            ind_plot=ind_plot+1;
-            row = uniqatoms(iHB,:);
-            y=[];
-            for iirc=sort_ind % over IRC points
-                if isfield(ircdb(iirc),'mcharge') && ~isempty(ircdb(iirc).mcharge) && ~isempty( ircdb(iirc).mcharge(row(1)) )
-                    y(end+1) = ircdb(iirc).mcharge(row(1));%#ok
-                else
-                    y(end+1) = NaN; %#ok
+        uniqatoms_H = uniqatoms(strcmpcellar(ircdb(1).labels(uniqatoms),'H'));
+        min_y=NaN; max_y=NaN;
+        buf={};buf.h_plots=[];buf.legs={};
+        cla
+        hold on
+        for iHB=1:size(uniqatoms_H,1) 
+            row = uniqatoms_H(iHB,:);
+            y=repmat(NaN,size(x));
+            for iirc=1:numel(sort_ind) % over IRC points
+                if isfield(ircdb(sort_ind(iirc)),'mcharge') && ~isempty(ircdb(sort_ind(iirc)).mcharge) && ~isempty( ircdb(sort_ind(iirc)).mcharge(row(1)) )
+                    y(iirc) = ircdb(sort_ind(iirc)).mcharge(row(1));%#ok
                 end
             end
-            plots.ylabel{ind_plot}='Mulliken atomic charge, e';%#ok
-            plots.yshort{ind_plot}=[atomlabel(ircdb(1),row(1))];%#ok
-            txt = ['Mulliken q ' plots.yshort{ind_plot} ', a.u.' ];
-            if ircdb(1).labels{row(1)}=='H'
-                plots.type(ind_plot)=PLOTTYPE_Mulliken_q_H;
-            else
-                plots.type(ind_plot)=PLOTTYPE_Mulliken_q_A;
-            end
+            leg=[atomlabel(ircdb(1),row(1))];%#ok
+            txt = ['Mulliken q ' leg ', a.u.' ];
             data(1,col)={txt};   data(2:numel(ircdb)+1,col) = num2cell(y); col=col+1;
-            plots.x{ind_plot}=x;
-            plots.y{ind_plot}=y;
+            
+            pointsign='.-';
+            color=pcolor{mod(iHB-1,numel(pcolor))+1};
+            buf.h_plots(end+1)=plot( a_tmp, x,y, pointsign, 'Color',color, 'LineWidth',lw);    
+            buf.legs{end+1}=leg;%#ok
+            min_y = min([min_y min(y)]);
+            max_y = max([max_y max(y)]);
         end
-        
-%         for iplot=1:5 %A...H, H...B, A-H-B, A...B, charges on H,A,B 
-%             for iHB=1:size(uniqHBind,1) %over all H-bonds
-% %                for iirc=1:numel(ircdb)
-%                 for iirc=sort_ind % over IRC points
-%                     if iplot==1
-%                         y(end+1) = adist(ircdb(iirc), row(1), row(2));%#ok
-%                     elseif iplot==2
-%                         y(end+1) = adist(ircdb(iirc), row(2), row(3));%#ok
-%                     elseif iplot==3
-%                         y(end+1) = valang(ircdb(iirc), row(1), row(2), row(3));%#ok
-%                     elseif iplot==4
-%                         y(end+1) = adist(ircdb(iirc), row(1), row(3));%#ok
-%                     elseif iplot==5
-%                         if isfield(ircdb(iirc),'mcharge') && ~isempty(ircdb(iirc).mcharge) && ~isempty( ircdb(iirc).mcharge(row(1)) )
-%                             y(end+1) = ircdb(iirc).mcharge(row(1));%#ok
-%                         else
-%                             y(end+1) = NaN; %#ok
-%                         end
-%                     elseif iplot==6
-%                         if isfield(ircdb(iirc),'mcharge') && ~isempty(ircdb(iirc).mcharge) && ~isempty( ircdb(iirc).mcharge(row(2)) )
-%                             y(end+1) = ircdb(iirc).mcharge(row(2));%#ok
-%                         else
-%                             y(end+1) = NaN; %#ok
-%                         end
-%                     elseif iplot==7
-%                         if ~isempty(ircdb(iirc).mcharge) && ~isempty( ircdb(iirc).mcharge(row(3)) )
-%                             y(end+1) = ircdb(iirc).mcharge(row(3));%#ok
-%                         else
-%                             y(end+1) = NaN; %#ok
-%                         end
-%                     end
-%                 end %iirc
-% 
-%                 k=1;
-%                 if iplot==1
-%                     plots.ylabel{ind_plot}='dAH/HB, ?';%#ok
-%                     plots.yshort{ind_plot}=[atomlabel(ircdb(1),row(1)) ',' atomlabel(ircdb(1),row(2))];%#ok
-%                     txt = ['A...H (' plots.yshort{ind_plot} '), A' ];
-%                     plots.leg{ind_plot}=txt;%#ok
-%                     if ircdb(1).labels{row(1)}=='C'
-%                         plots.type(ind_plot)=PLOTTYPE_dAH_CH;
-%                     else
-%                         plots.type(ind_plot)=PLOTTYPE_dAH;
-%                     end;
-%                 elseif iplot==2
-%                     plots.ylabel{ind_plot}='dAH/HB, ?';%#ok
-%                     plots.yshort{ind_plot}=[atomlabel(ircdb(1),row(2)) ',' atomlabel(ircdb(1),row(3))];%#ok
-%                     txt = ['H...B (' plots.yshort{ind_plot} '), A' ];
-%                     plots.leg{ind_plot}=txt;%#ok
-%                     if ircdb(1).labels{row(3)}=='C'
-%                         plots.type(ind_plot)=PLOTTYPE_dAH_CH;
-%                     else
-%                         plots.type(ind_plot)=PLOTTYPE_dAH;
-%                     end;
-%                 elseif iplot==3 
-%                     plots.ylabel{ind_plot}='?AH…B, °';%#ok
-%                     plots.yshort{ind_plot}=[atomlabel(ircdb(1),row(1)) ',' atomlabel(ircdb(1),row(2))...
-%                             ',' atomlabel(ircdb(1),row(3))];%#ok
-%                     k=0.01;
-%                     txt = ['A-H-B (' plots.yshort{ind_plot} '), °' ];
-%                     plots.leg{ind_plot}=[sprintf('%0.3g',k) '*' txt];%#ok
-%                     plots.type(ind_plot)=PLOTTYPE_aAHB;
-%                 elseif iplot==4
-%                     plots.ylabel{ind_plot}='dA…B, ?';%#ok
-%                     plots.yshort{ind_plot}=[atomlabel(ircdb(1),row(1)) ',' atomlabel(ircdb(1),row(3))];%#ok
-%                     txt = ['A...B (' plots.yshort{ind_plot} '), A' ];
-%                     plots.leg{ind_plot}=txt;%#ok
-%                     plots.type(ind_plot)=PLOTTYPE_dAB;
-%                 elseif iplot==5
-%                     plots.ylabel{ind_plot}='Mulliken atomic charge, e';%#ok
-%                     plots.yshort{ind_plot}=[atomlabel(ircdb(1),row(1))];%#ok
-%                     txt = ['Mulliken q ' plots.yshort{ind_plot} ', a.u.'];
-%                     plots.leg{ind_plot}=txt;%#ok
-%                     plots.type(ind_plot)=PLOTTYPE_Mulliken_q_A;
-%                 elseif iplot==6
-%                     plots.ylabel{ind_plot}='Mulliken atomic charge, e';%#ok
-%                     plots.yshort{ind_plot}=[atomlabel(ircdb(1),row(2))];%#ok
-%                     txt = ['Mulliken q ' plots.yshort{ind_plot} ', a.u.'];
-%                     plots.leg{ind_plot}=txt;%#ok
-%                     plots.type(ind_plot)=PLOTTYPE_Mulliken_q_H;
-%                 elseif iplot==7
-%                     plots.ylabel{ind_plot}='Mulliken atomic charge, e';%#ok
-%                     plots.yshort{ind_plot}=[atomlabel(ircdb(1),row(3))];%#ok
-%                     txt = ['Mulliken q ' plots.yshort{ind_plot} ', a.u.'];
-%                     plots.leg{ind_plot}=txt;%#ok
-%                     plots.type(ind_plot)=PLOTTYPE_Mulliken_q_A;
-%                 end
-%                         
-%                 
-%                 data(1,col)={txt};   data(2:numel(ircdb)+1,col) = num2cell(y); col=col+1;
-%                 plots.x{ind_plot}=x;
-%                 plots.y{ind_plot}=y;
-%                 
-%                 y=y*k;
-%                 min_y = min(min_y, min(y));
-%                 max_y = max(max_y, max(y));
-% 
-%                 pointsign = [psign(mod(iHB-1,numel(psign))+1) '-'];
-%                 if pointsign=='x' %crosses are too small - lets increase their size 
-%                     markersize = msc;
-%                 else
-%                     markersize = ms;
-%                 end
-%                 plots.h_plot(ind_plot)=plot( x,y,... 
-%                         pointsign,'Color', pcolor{mod(iplot-1,numel(pcolor))+1},...
-%                         'MarkerSize', markersize,...
-%                         'LineWidth',lw);%#ok
-%                 if fl_firstplot
-%                     fl_firstplot=0;
-%                     hold on
-%                 end
-% 
-%             end %iHB=1:size(uniqHBind,1)
-%         end %iplot
-        i_last_pointsign = size(uniqHBind,1);
+        my_axis([min_x max_x min_y max_y]);
+        grid off
+        set(a_tmp,'Box','on','XMinorTick','on','YMinorTick','on');
+        xlabel(a_tmp,xlabel_str);
+        ylabel(a_tmp,'Mulliken atomic charge, e');
+        legend(buf.h_plots, buf.legs, 'FontSize',7, 'Location','Best');
+        print(f_tmp,'-dpsc2', '-append', '-r300', psfile);
 
+        %---------------------------- charges on atoms - non-hydrogens
+        uniqatoms=unique(uniqHBind);
+        uniqatoms_notH = setdiff(uniqatoms,uniqatoms_H);
+        min_y=NaN; max_y=NaN;
+        buf={};buf.h_plots=[];buf.legs={};
+        cla
+        hold on
+        for iHB=1:size(uniqatoms_notH,1) 
+            row = uniqatoms_notH(iHB,:);
+            y=repmat(NaN,size(x));
+            for iirc=1:numel(sort_ind) % over IRC points
+                if isfield(ircdb(sort_ind(iirc)),'mcharge') && ~isempty(ircdb(sort_ind(iirc)).mcharge) && ~isempty( ircdb(sort_ind(iirc)).mcharge(row(1)) )
+                    y(iirc) = ircdb(sort_ind(iirc)).mcharge(row(1));%#ok
+                end
+            end
+            leg=[atomlabel(ircdb(1),row(1))];%#ok
+            txt = ['Mulliken q ' leg ', a.u.' ];
+            data(1,col)={txt};   data(2:numel(ircdb)+1,col) = num2cell(y); col=col+1;
+            
+            pointsign='.-';
+            color=pcolor{mod(iHB-1,numel(pcolor))+1};
+            buf.h_plots(end+1)=plot( a_tmp, x,y, pointsign, 'Color',color, 'LineWidth',lw);    
+            buf.legs{end+1}=leg;%#ok
+            min_y = min([min_y min(y)]);
+            max_y = max([max_y max(y)]);
+        end
+        my_axis([min_x max_x min_y max_y]);
+        grid off
+        set(a_tmp,'Box','on','XMinorTick','on','YMinorTick','on');
+        xlabel(a_tmp,xlabel_str);
+        ylabel(a_tmp,'Mulliken atomic charge, e');
+        legend(buf.h_plots, buf.legs, 'FontSize',7, 'Location','Best');
+        print(f_tmp,'-dpsc2', '-append', '-r300', psfile);
+
+            
+        %---------------------------- additional distances
         if exist('bondlist','var')
-        for iAB=1:size(bondlist,1) %over all additional distances
-                ind_plot=ind_plot+1;
-                row = bondlist(iAB,:);
-                y=[];
-                k=0.1;
-                plots.ylabel{ind_plot}='R(H-H), A';%#ok
-                plots.yshort{ind_plot}=[atomlabel(ircdb(1),row(1)) ',' atomlabel(ircdb(1),row(2))];%#ok
-                txt = ['H...H (' plots.yshort{ind_plot} '), A' ];
-                plots.leg{ind_plot}=[sprintf('%0.3g',k) '*' txt];%#ok
-                plots.type(ind_plot)=PLOTTYPE_RHH; %TBC????
-
-                for iirc=sort_ind % over IRC points
-                    y(end+1) = adist(ircdb(iirc), row(1), row(2));%#ok
+            min_y=NaN; max_y=NaN;
+            buf={};buf.h_plots=[];buf.legs={};
+            cla
+            hold on
+            for iHB=1:size(bondlist,1) %over all additional distances
+                row = bondlist(iHB,:);
+                y=repmat(NaN,size(x));
+                for iirc=1:numel(sort_ind) % over IRC points
+                    y(iirc) = adist(ircdb(sort_ind(iirc)), row(1), row(2));%#ok
                 end
-
+                leg=[atomlabel(ircdb(1),row(1)) ',' atomlabel(ircdb(1),row(2))];%#ok
+                txt = ['H...H (' leg '), A' ];
                 data(1,col)={txt};   data(2:numel(ircdb)+1,col) = num2cell(y); col=col+1;
-                plots.x{ind_plot}=x;
-                plots.y{ind_plot}=y;
 
-%                 y=y*k;
-%                 min_y = min(min_y, min(y));
-%                 max_y = max(max_y, max(y));
-% 
-%                 pointsign = [psign(mod(i_last_pointsign+iAB-1,numel(psign))+1) '-'];
-%                 if pointsign=='x' %crosses are too small - lets increase their size 
-%                     markersize = msc;
-%                 else
-%                     markersize = ms;
-%                 end
-%                 plots.h_plot(ind_plot)=plot( x,y,... 
-%                         pointsign,'Color', pcolor{1},...
-%                         'MarkerSize', markersize,...
-%                         'LineWidth',lw);%#ok
-        end
-        i_last_pointsign=i_last_pointsign+size(bondlist,1);
+                pointsign='.-';
+                color=pcolor{mod(iHB-1,numel(pcolor))+1};
+                buf.h_plots(end+1)=plot( a_tmp, x,y, pointsign, 'Color',color, 'LineWidth',lw);    
+                buf.legs{end+1}=leg;%#ok
+                min_y = min([min_y min(y)]);
+                max_y = max([max_y max(y)]);
+            end
+            my_axis([min_x max_x min_y max_y]);
+            grid off
+            set(a_tmp,'Box','on','XMinorTick','on','YMinorTick','on');
+            xlabel(a_tmp,xlabel_str);
+            ylabel(a_tmp,'R(H-H), A');
+            legend(buf.h_plots, buf.legs, 'FontSize',7, 'Location','Best');
+            print(f_tmp,'-dpsc2', '-append', '-r300', psfile);
         end
 
+        %---------------------------- additional angles
         if exist('anglist','var')
-        for iang=1:size(anglist,1) %over all additional angles
-                ind_plot=ind_plot+1;
+            min_y=NaN; max_y=NaN;
+            buf={};buf.h_plots=[];buf.legs={};
+            cla
+            hold on
+            for iang=1:size(anglist,1) %over all additional angles
                 row = anglist(iang,:);
-                y=[];
-                k=0.01;
-                plots.ylabel{ind_plot}='Glycosidic angle, °';%#ok
-                plots.yshort{ind_plot}=[atomlabel(ircdb(1),row(1)) ',' atomlabel(ircdb(1),row(2)) ',' atomlabel(ircdb(1),row(3))];%#ok
-                txt = ['A-H-B (' plots.yshort{ind_plot} '), °' ];
-                plots.leg{ind_plot}=[sprintf('%0.3g',k) '*' txt];%#ok
-                plots.type(ind_plot)=PLOTTYPE_aglyc;
-                for iirc=sort_ind % over IRC points
-                    y(end+1) = valang(ircdb(iirc), row(1), row(2), row(3));%#ok
+                y=repmat(NaN,size(x));
+                for iirc=1:numel(sort_ind) % over IRC points
+                    y(iirc) = valang(ircdb(sort_ind(iirc)), row(1), row(2), row(3));%#ok
                 end
-
+                leg=[atomlabel(ircdb(1),row(1)) ',' atomlabel(ircdb(1),row(2)) ',' atomlabel(ircdb(1),row(3))];%#ok
+                txt = ['glyc angle (' leg '), °' ];
                 data(1,col)={txt};   data(2:numel(ircdb)+1,col) = num2cell(y); col=col+1;
-                plots.x{ind_plot}=x;
-                plots.y{ind_plot}=y;
 
-%                 y=y*k;
-%                 min_y = min(min_y, min(y));
-%                 max_y = max(max_y, max(y));
-% 
-%                 pointsign = [psign(mod(i_last_pointsign+iang-1,numel(psign))+1) '-'];
-%                 if pointsign=='x' %crosses are too small - lets increase their size 
-%                     markersize = msc;
-%                 else
-%                     markersize = ms;
-%                 end
-%                 plots.h_plot(ind_plot)=plot( x,y,... 
-%                         pointsign,'Color', pcolor{1},...
-%                         'MarkerSize', markersize,...
-%                         'LineWidth',lw);%#ok
+                pointsign='.-';
+                color=pcolor{mod(iang-1,numel(pcolor))+1};
+                buf.h_plots(end+1)=plot( a_tmp, x,y, pointsign, 'Color',color, 'LineWidth',lw);    
+                buf.legs{end+1}=leg;%#ok
+                min_y = min([min_y min(y)]);
+                max_y = max([max_y max(y)]);
+            end
+            my_axis([min_x max_x min_y max_y]);
+            grid off
+            set(a_tmp,'Box','on','XMinorTick','on','YMinorTick','on');
+            xlabel(a_tmp,xlabel_str);
+            ylabel(a_tmp,'Glycosidic angle, °');
+            legend(buf.h_plots, buf.legs, 'FontSize',7, 'Location','Best');
+            print(f_tmp,'-dpsc2', '-append', '-r300', psfile);
         end
-        i_last_pointsign=i_last_pointsign+size(anglist,1);
-        end
-        
-%         hl=legend(plots.h_plot, plots.leg,'Location','EastOutside');
-%         set(hl, 'FontSize',7, 'FontName','Arial Narrow');
-%         title(['Geometry parameters versa IRC dependence (a.m.u.^{1/2}*bohr)'])%#ok
-%     %    xlabel('IRC');
-%         ysize=max_y-min_y;
-%         if isnan(ysize)
-%             min_y = 0;
-%             max_y = 1;
-%         else
-%             min_y = min_y-0.01*ysize;
-%             max_y = max_y+0.01*ysize;
-%         end
-%         saved_axis(3,:)=[min(x) max(x) min_y max_y];
-%         axis(saved_axis(3,:));
-%         grid on
-% %        set(gca,'DataAspectRatioMode','auto', 'PlotBoxAspectRatioMode','auto', 'CameraViewAngleMode','auto');
 
-        
-    else 
-        fl_empty_figures = fl_empty_figures+1;
     end %if ~isempty(uniqHBind)
 
     
-%-----------------------------Dipole moment plotting------------------------------------------  
-    y=[];
-    txt = ['Dipole monent, Debay' ];%#ok
-    legs_plot1{end+1}=txt;%#ok
-    ind_plot=ind_plot+1;
-    plots.ylabel{ind_plot}='Dipole moment, D';%#ok
-    plots.yshort{ind_plot}='';%#ok
-    plots.leg{ind_plot}=txt;
-    plots.type(ind_plot)=PLOTTYPE_mu;
-    for iirc=sort_ind % over IRC points
-        y(end+1) = ircdb(iirc).DM;%#ok
-    end
-
-    data(1,col)={txt};   data(2:numel(ircdb)+1,col) = num2cell(y); col=col+1;
-    plots.x{ind_plot}=x;
-    plots.y{ind_plot}=y;
-    hold(hA(1),'on');
-    pointsign='.-';
-    color='green';
-    plots.h_plot(ind_plot)=plot( hA(1), x,y,pointsign,'Color',color,'LineWidth',lw);    
-    saved_axis(1,4)=max(1.01*max(y),saved_axis(1,4));
-    axis(hA(1), saved_axis(1,:));
-
-
     
-%-----------------------------Gibbs energy plotting------------------------------------------  
-%     if isfield(ircdb,'GEC')
-%                 y=[];
-%                 txt = ['\Delta G, kcal/mol' ];%#ok
-%                 legs_plot1{end+1}=txt;%#ok
-%                 for iirc=sort_ind % over IRC points
-%                   if ~isempty(ircdb(iirc).GEC)
-%                     y(end+1) = ircdb(iirc).energy*CC.encoef + ircdb(iirc).GEC;%#ok
-%                   else
-%                     y(end+1) = NaN;%#ok
-%                   end
-%                 end
-%                 y = y - min(y);
-% 
-%                 data(1,col)={txt};   data(2:numel(ircdb)+1,col) = num2cell(y); col=col+1;
-%                 hold(hA(1),'on');
-%                 plot( hA(1), x,y,'b.-','LineWidth',lw);  
-%                 
-%                 y=[];
-%                 txt = ['GEC/10, kcal/mol' ];%#ok
-%                 legs_plot1{end+1}=txt;%#ok
-%                 for iirc=sort_ind % over IRC points
-%                   if ~isempty(ircdb(iirc).GEC)
-%                     y(end+1) = ircdb(iirc).GEC;%#ok
-%                   else
-%                     y(end+1) = NaN;%#ok
-%                   end
-%                 end
-%                 y = y/10;
-% 
-%                 data(1,col)={txt};   data(2:numel(ircdb)+1,col) = num2cell(y); col=col+1;
-%                 hold(hA(1),'on');
-%                 plot( hA(1), x,y,'y.-','LineWidth',lw);  
-%                 
-%      end
-%      legend(hA(1),legs_plot1,'FontSize',7, 'FontName','Arial Narrow','Location','Best');
-    
-%------------------------AIM figure--------------------------  
-%    hA(4) = subplot(2,2,4);
-    hA(4) = subplot('position',[0.5+bwl 0+bhb 0.5-bwl-bwr main_h-bhb-bht]);
-%    plts={};
-%    plts.legs={}; %legends array
-%    plts.h_plots = []; %array of plot handles
-%    plts.k=[];
-%    plts.x=[];
-%    plts.y=[];
-%    plts.title={};
-    
-    min_y = NaN;
-    max_y = NaN;
-    
+%------------------------AIM figures--------------------------  
     if exist('aimbondlist','var')
         uniqCPind = [uniqCPind; aimbondlist]; % #ok
     end
     if ~isempty(uniqCPind)
-        
-        fl_firstplot=1;
-        
+
+%------------------------rho --------------------------  
+        min_y=NaN; max_y=NaN;
+        buf={};buf.h_plots=[];buf.legs={};
+        cla
+        hold on
         for iCP=1:size(uniqCPind,1) % over all H-bond CPs
-            for iplot=1:4 %rho, Delta rho, E_{HB}, epsilon
-                ind_plot=ind_plot+1;
-
-                x=repmat(NaN,size(sort_ind));
-                y=x;
-        
-                for iirc=sort_ind %over IRC points
-                    if isempty(ircdb(iirc).AIM)
-                        continue;
-                    end
-                    iii = find( sum( repmat(uniqCPind(iCP,:),size(ircdb(iirc).AIM.atoms,1),1)==ircdb(iirc).AIM.atoms, 2) == 2 );
+            row = uniqatoms(iHB,:);
+            y=repmat(NaN,size(x));
+            for iirc=1:numel(sort_ind) % over IRC points
+                ircrec=ircdb(sort_ind(iirc));
+                if ~isempty(ircrec.AIM)
+                    iii = find( sum( repmat(uniqCPind(iCP,:),size(ircrec.AIM.atoms,1),1)==ircrec.AIM.atoms, 2) == 2 ); %find appropriate CP index among molecule CPs
                     if iii
-
-                        ind=find(iirc==sort_ind);
-                        x(ind)=ircdb(iirc).irc;  %#ok
-                        atoms = ircdb(iirc).AIM.atoms(iii,:);
-                        if iplot==1
-                            y(ind) = ircdb(iirc).AIM.ro(iii);%#ok
-                        elseif iplot==2
-                            y(ind) = ircdb(iirc).AIM.DelSqRho(iii);%#ok
-                        elseif iplot==3
-                            y(ind) = -0.5*CC.encoef*ircdb(iirc).AIM.V(iii);%#ok
-                        elseif iplot==4
-                            y(ind) = ircdb(iirc).AIM.BondEl(iii);%#ok
-                        end
+                        y(iirc) = ircrec.AIM.ro(iii);%#ok
                     end
                 end
-
-                k = 1/max(abs(y));
-                if iplot==1
-                    plots.ylabel{ind_plot}='\rho, a.u.';%#ok
-                    plots.yshort{ind_plot}=[atomlabel(ircdb(1),uniqCPind(iCP,1)) ',' atomlabel(ircdb(1),uniqCPind(iCP,2))];%#ok
-                    txt = ['\rho,a.u. (' plots.yshort{ind_plot} ')'];
-                    plots.leg{ind_plot}=[sprintf('%0.3g',k) '*' txt];%#ok
-                    if ircdb(1).labels{uniqCPind(iCP,1)}=='C' || ircdb(1).labels{uniqCPind(iCP,2)}=='C'
-                        plots.type(ind_plot)=PLOTTYPE_rho_CH;
-                    else
-                        plots.type(ind_plot)=PLOTTYPE_rho;
-                    end;
-                elseif iplot==2
-                    plots.ylabel{ind_plot}='\Delta \rho, a.u.';%#ok
-                    plots.yshort{ind_plot}=[atomlabel(ircdb(1),uniqCPind(iCP,1)) ',' atomlabel(ircdb(1),uniqCPind(iCP,2))];%#ok
-                    txt = ['\Delta \rho,a.u. (' plots.yshort{ind_plot} ')'];
-                    plots.leg{ind_plot}=[sprintf('%0.3g',k) '*' txt];%#ok
-                    if ircdb(1).labels{uniqCPind(iCP,1)}=='C' || ircdb(1).labels{uniqCPind(iCP,2)}=='C'
-                        plots.type(ind_plot)=PLOTTYPE_deltarho_CH;
-                    else
-                        plots.type(ind_plot)=PLOTTYPE_deltarho;
-                    end
-                elseif iplot==3
-                    plots.ylabel{ind_plot}='E_{HB}, kcal/mol';%#ok
-                    plots.yshort{ind_plot}=[atomlabel(ircdb(1),uniqCPind(iCP,1)) ',' atomlabel(ircdb(1),uniqCPind(iCP,2))];%#ok
-                    txt = ['E_{HB},k/m (' plots.yshort{ind_plot} ')'];
-                    plots.leg{ind_plot}=[sprintf('%0.3g',k) '*' txt];%#ok
-                    if ircdb(1).labels{uniqCPind(iCP,1)}=='C' || ircdb(1).labels{uniqCPind(iCP,2)}=='C'
-                        plots.type(ind_plot)=PLOTTYPE_EHB_CH;
-                    else
-                        plots.type(ind_plot)=PLOTTYPE_EHB;
-                    end
-                elseif iplot==4
-                    plots.ylabel{ind_plot}='ellipticity';%#ok
-                    plots.yshort{ind_plot}=[atomlabel(ircdb(1),uniqCPind(iCP,1)) ',' atomlabel(ircdb(1),uniqCPind(iCP,2))];%#ok
-                    txt = ['\epsilon (' plots.yshort{ind_plot} ')'];
-                    plots.leg{ind_plot}=[sprintf('%0.3g',k) '*' txt];%#ok
-                    if ircdb(1).labels{uniqCPind(iCP,1)}=='C' || ircdb(1).labels{uniqCPind(iCP,2)}=='C'
-                        plots.type(ind_plot)=PLOTTYPE_epsilon_CH;
-                    else
-                        plots.type(ind_plot)=PLOTTYPE_epsilon;
-                    end
-                end
-
-                %%errorneous
-                %%if iplot==1
-                %    data(1,col)={'IRC, a.m.u.^{1/2}*bohr'};   data(2:numel(x)+1,col) = num2cell(x); col=col+1;
-                %%end
-                data(1,col)={txt};   data(2:numel(y)+1,col) = num2cell(y); col=col+1;
-
-                plots.x{ind_plot}=x;
-                plots.y{ind_plot}=y;
-%                plts.x(end+1,:) = x;
-%                plts.y(end+1,:) = y;
-%                plts.k(end+1) = k;
-%                plts.title(end+1) = {txt};
-                
-                y = k*y; %y is now in limits [-1;1]
-                min_y = min(min_y, min(y));
-                max_y = max(max_y, max(y));
-                
-                pointsign = [psign(mod(iCP-1,numel(psign))+1) '-'];
-                if pointsign=='x' %crosses are too small - lets increase their size 
-                    markersize = msc;
-                else
-                    markersize = ms;
-                end
-                plots.h_plot(ind_plot)=plot( x,y,... 
-                        pointsign,'Color', pcolor{mod(iplot-1,numel(pcolor))+1},...
-                        'MarkerSize', markersize,...
-                        'MarkerFaceColor',pcolor{mod(iplot-1,numel(pcolor))+2},... %next one to 'Color'
-                        'LineWidth',lw);%#ok
-                if fl_firstplot
-                    fl_firstplot=0;
-                    hold on
-                end
-
             end
+            leg=[atomlabel(ircdb(1),uniqCPind(iCP,1)) ',' atomlabel(ircdb(1),uniqCPind(iCP,2))];%#ok
+            txt = ['\rho,a.u. (' leg ')'];
+            data(1,col)={txt};   data(2:numel(ircdb)+1,col) = num2cell(y); col=col+1;
+            
+            pointsign='.-';
+            color=pcolor{mod(iCP-1,numel(pcolor))+1};
+            buf.h_plots(end+1)=plot( a_tmp, x,y, pointsign, 'Color',color, 'LineWidth',lw);    
+            buf.legs{end+1}=leg;%#ok
+            min_y = min([min_y min(y)]);
+            max_y = max([max_y max(y)]);
         end
+        my_axis([min_x max_x min_y max_y]);
+        grid off
+        set(a_tmp,'Box','on','XMinorTick','on','YMinorTick','on');
+        xlabel(a_tmp,xlabel_str);
+        ylabel(a_tmp,'\rho, a.u.');
+        legend(buf.h_plots, buf.legs, 'FontSize',7, 'Location','Best');
+        print(f_tmp,'-dpsc2', '-append', '-r300', psfile);        
+        
 
-        txt0 = 'AIM parameters versa IRC (a.m.u.^{1/2}*bohr) dependence for CPs';
-%        hl=legend(plots.h_plot, plots.leg,'Location','EastOutside');
-%        set(hl, 'FontSize',7, 'FontName','Arial Narrow');
-        title(txt0)%#ok
-    %    xlabel('IRC');
-    %    ylabel('E_{HB}, kcal/mol');
-        ysize=max_y-min_y;
-        saved_axis(4,:)=[min([ircdb.irc]) max([ircdb.irc]) min_y-0.01*ysize max_y+0.01*ysize];
-        axis(saved_axis(4,:));
-        grid on
-        set(gca,'YMinorGrid','on')
-%        set(gca,'DataAspectRatioMode','auto', 'PlotBoxAspectRatioMode','auto', 'CameraViewAngleMode','auto')
+%------------------------ delta rho --------------------------  
+        min_y=NaN; max_y=NaN;
+        buf={};buf.h_plots=[];buf.legs={};
+        cla
+        hold on
+        for iCP=1:size(uniqCPind,1) % over all H-bond CPs
+            row = uniqatoms(iHB,:);
+            y=repmat(NaN,size(x));
+            for iirc=1:numel(sort_ind) % over IRC points
+                ircrec=ircdb(sort_ind(iirc));
+                if ~isempty(ircrec.AIM)
+                    iii = find( sum( repmat(uniqCPind(iCP,:),size(ircrec.AIM.atoms,1),1)==ircrec.AIM.atoms, 2) == 2 ); %find appropriate CP index among molecule CPs
+                    if iii
+                        y(iirc) = ircrec.AIM.DelSqRho(iii);%#ok
+                    end
+                end
+            end
+            leg=[atomlabel(ircdb(1),uniqCPind(iCP,1)) ',' atomlabel(ircdb(1),uniqCPind(iCP,2))];%#ok
+            txt = ['\Delta \rho,a.u. (' leg ')'];
+            data(1,col)={txt};   data(2:numel(ircdb)+1,col) = num2cell(y); col=col+1;
+            
+            pointsign='.-';
+            color=pcolor{mod(iCP-1,numel(pcolor))+1};
+            buf.h_plots(end+1)=plot( a_tmp, x,y, pointsign, 'Color',color, 'LineWidth',lw);    
+            buf.legs{end+1}=leg;%#ok
+            min_y = min([min_y min(y)]);
+            max_y = max([max_y max(y)]);
+        end
+        my_axis([min_x max_x min_y max_y]);
+        grid off
+        set(a_tmp,'Box','on','XMinorTick','on','YMinorTick','on');
+        xlabel(a_tmp,xlabel_str);
+        ylabel(a_tmp,'\Delta \rho, a.u.');
+        legend(buf.h_plots, buf.legs, 'FontSize',7, 'Location','Best');
+        print(f_tmp,'-dpsc2', '-append', '-r300', psfile);        
+        
+        %------------------------ ellipticity --------------------------  
+        min_y=NaN; max_y=NaN;
+        buf={};buf.h_plots=[];buf.legs={};
+        cla
+        hold on
+        for iCP=1:size(uniqCPind,1) % over all H-bond CPs
+            row = uniqatoms(iHB,:);
+            y=repmat(NaN,size(x));
+            for iirc=1:numel(sort_ind) % over IRC points
+                ircrec=ircdb(sort_ind(iirc));
+                if ~isempty(ircrec.AIM)
+                    iii = find( sum( repmat(uniqCPind(iCP,:),size(ircrec.AIM.atoms,1),1)==ircrec.AIM.atoms, 2) == 2 ); %find appropriate CP index among molecule CPs
+                    if iii
+                        y(iirc) = ircrec.AIM.BondEl(iii);%#ok
+                    end
+                end
+            end
+            leg=[atomlabel(ircdb(1),uniqCPind(iCP,1)) ',' atomlabel(ircdb(1),uniqCPind(iCP,2))];%#ok
+            txt = ['\epsilon (' leg ')'];
+            data(1,col)={txt};   data(2:numel(ircdb)+1,col) = num2cell(y); col=col+1;
+            
+            pointsign='.-';
+            color=pcolor{mod(iCP-1,numel(pcolor))+1};
+            buf.h_plots(end+1)=plot( a_tmp, x,y, pointsign, 'Color',color, 'LineWidth',lw);    
+            buf.legs{end+1}=leg;%#ok
+            min_y = min([min_y min(y)]);
+            max_y = max([max_y max(y)]);
+        end
+        my_axis([min_x max_x min_y max_y]);
+        if isfield(flags,'semilogy_for_ellipticity') && flags.semilogy_for_ellipticity
+            set(a_tmp,'YScale','log');
+        end
+        grid off
+        set(a_tmp,'Box','on','XMinorTick','on','YMinorTick','on');
+        xlabel(a_tmp,xlabel_str);
+        ylabel(a_tmp,'ellipticity');
+        legend(buf.h_plots, buf.legs, 'FontSize',7, 'Location','Best');
+        print(f_tmp,'-dpsc2', '-append', '-r300', psfile);        
 
-% %        set(0,'CurrentFigure',f_tmp);
-%         for iplot=1:numel(plts.h_plots)
-%             cla(a_tmp);%temporary axis
-% %            pl2ax(h_plots(iplot),axes('Parent',f_tmp),plts.title{iplot},plts.k(iplot));
-%             pointsign='.-';
-%             x = plts.x(iplot,:);
-%             y = plts.y(iplot,:);
-%             plot(a_tmp, x,y,... 
-%                         pointsign,'Color', pcolor{mod(iplot-1,numel(pcolor))+1},...
-%                         'MarkerSize', 6,...
-%                         'MarkerFaceColor',pcolor{mod(iplot,numel(pcolor))+1},... %next one to 'Color'
-%                         'LineWidth',lw);%#ok
-%             ysize=max(y)-min(y);
-%             axis(a_tmp,[min(x) max(x) min(y)-0.01*ysize max(y)+0.01*ysize]);
-%             set(a_tmp,'XGrid','on','YGrid','on','GridLineStyle','--');
-%             title(a_tmp,[txt0 ': ' plts.title{iplot}],'FontSize',9);
-% 
-%             print(f_tmp,'-dpsc2', '-append', '-r300', psfile);
-%         end
+        %------------------------ E_{HB} --------------------------  
+        min_y=NaN; max_y=NaN;
+        buf={};buf.h_plots=[];buf.legs={};
+        cla
+        hold on
+        for iCP=1:size(uniqCPind,1) % over all H-bond CPs
+            row = uniqatoms(iHB,:);
+            y=repmat(NaN,size(x));
+            for iirc=1:numel(sort_ind) % over IRC points
+                ircrec=ircdb(sort_ind(iirc));
+                if ~isempty(ircrec.AIM)
+                    iii = find( sum( repmat(uniqCPind(iCP,:),size(ircrec.AIM.atoms,1),1)==ircrec.AIM.atoms, 2) == 2 ); %find appropriate CP index among molecule CPs
+                    if iii
+                        y(iirc) = -0.5*CC.encoef*ircrec.AIM.V(iii);%#ok
+                    end
+                end
+            end
+            leg=[atomlabel(ircdb(1),uniqCPind(iCP,1)) ',' atomlabel(ircdb(1),uniqCPind(iCP,2))];%#ok
+            txt = ['E_{HB},k/m (' leg ')'];
+            data(1,col)={txt};   data(2:numel(ircdb)+1,col) = num2cell(y); col=col+1;
+            
+            pointsign='.-';
+            color=pcolor{mod(iCP-1,numel(pcolor))+1};
+            buf.h_plots(end+1)=plot( a_tmp, x,y, pointsign, 'Color',color, 'LineWidth',lw);    
+            buf.legs{end+1}=leg;%#ok
+            min_y = min([min_y min(y)]);
+            max_y = max([max_y max(y)]);
+        end
+        max_y = min([max_y 100]); %cutting off covalent bonds energy range
+        my_axis([min_x max_x min_y max_y]);
+        grid off
+        set(a_tmp,'Box','on','XMinorTick','on','YMinorTick','on');
+        xlabel(a_tmp,xlabel_str);
+        ylabel(a_tmp,'E_{HB}, kcal/mol');
+        legend(buf.h_plots, buf.legs, 'FontSize',7, 'Location','Best');
+        print(f_tmp,'-dpsc2', '-append', '-r300', psfile);        
+
         
     else 
         fl_empty_figures = fl_empty_figures+1;
     end %if ~isempty(uniqCPind)
 
-%-----------------------------grouping figures------------------------------------------  
-%    set(0,'CurrentFigure',f_tmp)
-    plots_with_cur_plot_type=0;
-    x=sort([ircdb.irc]);
-    for plot_type=0:PLOTTYPE_max
-        
-        if plots_with_cur_plot_type
-%            pause(1);
-            grid off
-            set(a_tmp,'Box','on','XMinorTick','on','YMinorTick','on');
-            ysize=plot_y_axis(2)-plot_y_axis(1);
-            if isnan(ysize)
-                min_y = 0;
-                max_y = 1;
-            else
-                min_y = plot_y_axis(1)-0.01*ysize;
-                max_y = plot_y_axis(2)+0.01*ysize;
-            end
-            axis(a_tmp,[0.99*min(x) 1.01*max(x) min_y max_y]);
-            xlabel(a_tmp,'IRC, a.m.u.^{1/2}*bohr');
-            ylabel(a_tmp,buf.ylabel);
-            legend(buf.h_plot, buf.legs, 'FontSize',7, 'Location','Best');
-            print(f_tmp,'-dpsc2', '-append', '-r300', psfile);
-        end
-        buf.legs={};
-        buf.h_plot=[];
-        plots_with_cur_plot_type = 0;
-        plot_y_axis=[NaN NaN];
-        cla(a_tmp);
-        
-        for iplot=1:numel(plots.h_plot)
-            if plot_type==plots.type(iplot)
-                
-                plots_with_cur_plot_type=plots_with_cur_plot_type+1;
-                
-%                pl2ax(plots.h_plot(iplot),a_tmp,plots.leg{iplot});%copy plot to PS axes
-                buf.ylabel=plots.ylabel{iplot};
-                buf.legs{end+1}=plots.yshort{iplot};
-%                pointsign = [psign(mod(plots_with_cur_plot_type-1,numel(psign))+1) '-'];
-%                 if pointsign=='x' %crosses are too small - lets increase their size 
-%                     markersize = msc;
-%                 else
-%                     markersize = ms;
-%                 end
-                pointsign = '.-';
-                color=pcolor{mod(plots_with_cur_plot_type-1,numel(pcolor))+1};
-                plot_y_axis(1)=min([plot_y_axis(1) min(plots.y{iplot})]);
-                plot_y_axis(2)=max([plot_y_axis(2) max(plots.y{iplot})]);
-                buf.h_plot(end+1)=plot(a_tmp, plots.x{iplot}, plots.y{iplot},... 
-                            pointsign,'Color', color,...
-                            'MarkerSize', 6,...
-                            'LineWidth',lw);%#ok
-                hold on
-
-            end
-        end
-    end
-    
-    
-    
-    
     
     if fl_empty_figures==0 && fl_savepics
 %        saveas(gcf,[indir filesep fnameshort '.pdf'],'pdf');
