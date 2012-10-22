@@ -37,34 +37,34 @@ classdef TorsionStat
             d = {min(obj.data) max(obj.data) mean(obj.data) std(obj.data)}';
 		end % stat
         
-%       function b = subsref(a,s)
-%          % SUBSREF Implementing the following syntax: 
-%          % obj([1 ...])
-%          % obj.coef
-%          % obj.plot
-%          % out = obj.method(args)
-%          % out = obj.method
-%          switch s(1).type
-%             case '()'
-%                ind = s.subs{:};
-%                b = a.polyval(ind);
-%             case '.'
-%                switch s(1).subs
-%                   case 'coef'
-%                      b = a.data;
-%                   case 'stat'
-%                      b = a.stat;
-%                   otherwise
-%                      if length(s)>1
-%                         b = a.(s(1).subs)(s(2).subs{:});
-%                      else
-%                         b = a.(s.subs);
-%                      end
-%                end
-%             otherwise
-%                error('Specify value for x as obj(x)')
-%          end
-%       end % subsref      
+       function b = subsref(a,s)
+          % SUBSREF Implementing the following syntax: 
+          % obj([1 ...])
+          % obj.coef
+          % obj.plot
+          % out = obj.method(args)
+          % out = obj.method
+          switch s(1).type
+             case '()'
+                ind = s.subs{:};
+                b = a.polyval(ind);
+             case '.'
+                switch s(1).subs
+                   case 'coef'
+                      b = a.data;
+                   case 'stat'
+                      b = a.stat;
+                   otherwise
+                      if length(s)>1
+                         b = a.(s(1).subs)(s(2).subs{:});
+                      else
+                         b = a.(s.subs);
+                      end
+                end
+             otherwise
+                error('Specify value for x as obj(x)')
+          end
+       end % subsref      
 
 	end % methods 
 end % classdef

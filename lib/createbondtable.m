@@ -1,9 +1,17 @@
-function mol=createbondtable(mol)
+function mol=createbondtable(mol,mode)
 %creates table of chemical bonds from molecule geometry mol
 %
+%mode
+%if 1 - detect Hbonds - distancies between hydrogen and other atom less
+%than 1.3A
 % Version 1.0    
 % Last modified  R O Zhurakivsky 2007-08-04 
 % Created        R O Zhurakivsky 2005-09-?
+
+if nargin<2
+    mode=0;
+end
+
 
 A=zeros(0,0,'uint16');
 B=zeros(0,0,'uint16');
@@ -34,7 +42,9 @@ for i=1:mol.atomnum
          fl_P = 0;
      end     
      
-    if (fl_Na && fl_iP) || (~fl_Na && adist(mol,i,j)<=bondlen(mol.labels(i),mol.labels(j)))
+    if (fl_Na && fl_iP) || ...
+            (~fl_Na && adist(mol,i,j)<=bondlen(mol.labels(i),mol.labels(j))) || ...
+            (mode==1 && adist(mol,i,j)<=1.5) %
       A(end+1) = i;
       B(end+1) = j;
     end

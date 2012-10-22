@@ -160,8 +160,8 @@ elseif plottype==1 %balls & cylinders
 %    case  'P', color = [1.0 1.0 0.0]; r = 0.6;
 %    otherwise, color = [1.0 0.0 0.0]; r = 0.5;
     case  'H', color = [0.7 0.7 0.7]; r = 0.3;
-    case  'C', color = 'green'; r = 0.5;
-    case  'O', color = 'red'; r = 0.5;
+    case  'C', color = 'green'; r = 0.45;
+    case  'O', color = 'red'; r = 0.45;
     case  'N', color = 'blue'; r = 0.4;
     case  'F', color = 'magenta'; r = 0.4;
     case  'P', color = 'yellow'; r = 0.6;
@@ -205,19 +205,31 @@ elseif plottype==1 %balls & cylinders
      end
   end
 
+  if isfield(mol,'text2plot') %plot labels on strucrute, e.g. bind lengthes
+    for I=1:numel(mol.text2plot)
+        text2plot = mol.text2plot(I);
+        dy = 0;
+%        dy = 1.4*(mod(I,2)-0.5); % displacemant to texts do not overlap
+        htext = text(text2plot.x, text2plot.y-dy, text2plot.z, text2plot.text, 'FontSize',3, 'HorizontalAlignment','center');
+        
+    end
+  end
+  
     Hblist_ind=[];
     if isfield(mol,'HBlist') && ~isempty(mol.HBlist) % plots Hbonds specified in molecular structure
 
     	Hblist_ind = mol.HBlist;
 
     elseif isfield(mol,'AIM') && ~isempty(mol.AIM) % plots only typical 3 or 4 atoms interactions
-        for I=1:size(mol.AIM.pinds,1)
-            bond = mol.AIM.pinds(I,:);
-            if bond(2)*bond(3)
-                atmFirst=find( mol.pind==mol.AIM.pinds(I,2) .* (mol.nfrag==mol.AIM.nfrag(I,2)) );
-                atmSecond=find( mol.pind==mol.AIM.pinds(I,3) .* (mol.nfrag==mol.AIM.nfrag(I,3)) );
-                Hblist_ind(end+1,:) = [atmFirst atmSecond];
-%                Hblist_ind(end+1,:) = [find(mol.pind==mol.AIM.pinds(I,2)) find(mol.pind==mol.AIM.pinds(I,3))'];
+        if isfield(mol.AIM,'pinds')
+            for I=1:size(mol.AIM.pinds,1)
+                bond = mol.AIM.pinds(I,:);
+                if bond(2)*bond(3)
+                    atmFirst=find( mol.pind==mol.AIM.pinds(I,2) .* (mol.nfrag==mol.AIM.nfrag(I,2)) );
+                    atmSecond=find( mol.pind==mol.AIM.pinds(I,3) .* (mol.nfrag==mol.AIM.nfrag(I,3)) );
+                    Hblist_ind(end+1,:) = [atmFirst atmSecond];
+    %                Hblist_ind(end+1,:) = [find(mol.pind==mol.AIM.pinds(I,2)) find(mol.pind==mol.AIM.pinds(I,3))'];
+                end
             end
         end
 	end
@@ -227,7 +239,7 @@ elseif plottype==1 %balls & cylinders
 %    [x,y,z] = cylinder(R,N); %unit cylinder
 	[x,y,z] = sphere(N);
     
-    for I=1:size(Hblist_ind,1)
+    for I=1:size(Hblist_ind,1) %plots H-bonds as dashed cylinders
 
         i1=Hblist_ind(I,1);
    	    i2=Hblist_ind(I,2);
@@ -235,7 +247,7 @@ elseif plottype==1 %balls & cylinders
 %        i2=find(strcmpcellar(pind.labels,Hblist{I,2})==mol.pind);
         v=[mol.x(i2)-mol.x(i1),mol.y(i2)-mol.y(i1),mol.z(i2)-mol.z(i1)]; %bond vector
 
-        Oz=v/norm(v);
+        Oz=v/norm(v); %Oz - ort along bond direction
         vi=[1 1 1];
         Ox=cross(Oz,vi);
         Ox=Ox/norm(Ox);
@@ -243,17 +255,18 @@ elseif plottype==1 %balls & cylinders
 
   %      r=[x(1:end); y(1:end); z(1:end)*norm(v)/4];
 %        r=[x(1:end); y(1:end); 0.08 * z(1:end)*norm(v)]; %cylinder with height 1/20
-        r = 0.1 * [x(1:end); y(1:end); z(1:end)]; %sphere with radius 0.1
+        SphereSize = 0.08;
+        r = SphereSize * [x(1:end); y(1:end); z(1:end)]; %sphere with radius 0.1
         rr=[Ox;Oy;Oz]'*r;
         xx=reshape(rr(1,:),size(x));
         yy=reshape(rr(2,:),size(x));
         zz=reshape(rr(3,:),size(x));
 
-        for icyl=0:0.1:0.9 %set number and step of small cylinders
-            %???maybe small spheres will be better choice than cylinders
-            surface('XData',mol.x(i1)+v(1)*icyl+xx,...
-            		'YData',mol.y(i1)+v(2)*icyl+yy,...
-            		'ZData',mol.z(i1)+v(3)*icyl+zz,...
+        for icyl=0:3*SphereSize:norm(v) %set number and step of small cylinders
+            %small spheres are better than cylinders
+            surface('XData',mol.x(i1)+Oz(1)*icyl+xx,...
+            		'YData',mol.y(i1)+Oz(2)*icyl+yy,...
+            		'ZData',mol.z(i1)+Oz(3)*icyl+zz,...
                     'FaceColor',color, 'EdgeColor','none', 'FaceLighting','gouraud');
         end
     end
