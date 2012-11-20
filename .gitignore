@@ -1,1 +1,5 @@
-rot40_irc.asv
+#.gitignore
+*.asv
+*.m~
+*.eps
+*.pdf
