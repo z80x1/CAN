@@ -27,6 +27,7 @@ maxind=0;
 
 ms0=struct();
 status=999;
+delimiter='';
 
 if ~positioned
 while 1
@@ -39,10 +40,33 @@ while 1
   end
 end
 end
-tline=fgets(fid); %now we are at line "Number     Number                        X           Y           Z"
-numfields  = numel(strread(tline,'%s'));
+% if  ~isempty(strfind(tline,'Multiplicity'))
+%        numfields=5;
+%        delimiter=',';
+% else
+    tline=fgets(fid); %now we are at line "Number     Number                        X           Y           Z"
+    numfields  = numel(strread(tline,'%s'));
+% end
 
-if numfields==4
+if numfields<4 && sum(tline==',')==4
+    for i=1:10000
+        try
+            A=sscanf(tline,' %c,%d,%f,%f,%f',5);
+            if numel(A)<5 , break, end
+            
+            ms0.labels{i} = char(A(1));
+            nchange = A(2);
+            ms0.x(i,1) = A(3);
+            ms0.y(i,1) = A(4);
+            ms0.z(i,1) = A(5);
+        catch
+            break
+        end
+        
+        tline=fgets(fid);
+    end
+    
+elseif numfields==4
     for i=1:10000
         try
             [label,ms0.x(i,1),ms0.y(i,1),ms0.z(i,1)]=strread(tline,'%s%f%f%f');
@@ -58,10 +82,15 @@ if numfields==4
         tline=fgets(fid);
     end
 else
-    tline=fgets(fid); %skip line to reach coordinates 
     if numfields==5
-        A=fscanf(fid,'%d%d%f%f%f',[numfields,inf]);
+%         if delimiter==','
+%             A=fscanf(fid,'%c,%d,%f,%f,%f',[numfields,inf]);
+%         else
+            tline=fgets(fid); %skip line to reach coordinates 
+            A=fscanf(fid,'%d%d%f%f%f',[numfields,inf]);
+%         end
     elseif numfields==6
+        tline=fgets(fid); %skip line to reach coordinates 
         A=fscanf(fid,'%d%d%d%f%f%f',[numfields,inf]);
     else
         error('incorrect number of fields in geometry structure detected');

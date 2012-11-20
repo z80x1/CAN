@@ -10,6 +10,7 @@ fl_debug = 0;
 exts={}; y=[];
 for it=1:numel(buf.ht)
     exts(it).ht = buf.ht(it);
+    exts(it).h_plots = buf.h_plots(it);
     exts(it).extent = get(buf.ht(it),'extent');
     exts(it).success = 0;
     exts(it).str = get(buf.ht(it),'string');
@@ -145,6 +146,8 @@ for it=1:numel(buf.ht)
     if exts(it).disabled == 1
         disp(['Label for similar plot deleted: ' exts(it).str])
         delete(exts(it).ht);
+        disp(['similar plot deleted: ' exts(it).str])
+        delete(exts(it).h_plots);
     else
         set(exts(it).ht,'Position',[exts(it).xstart exts(it).ystart 0], ...
             'HorizontalAlignment',exts(it).halign, 'VerticalAlignment',exts(it).valign);

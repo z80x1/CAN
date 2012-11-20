@@ -21,7 +21,7 @@ else
     i2 = i1 - 1;
 end
 
-X0 = X(i1)-(X(i2)-X(i1))*Y(i1)/(Y(i2)-Y(i1));
+X0 = X(i1) - (X(i2)-X(i1))*Y(i1) / (Y(i2)-Y(i1));
 
 ind = i1;
 

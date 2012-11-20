@@ -205,12 +205,13 @@ elseif plottype==1 %balls & cylinders
      end
   end
 
+  fontsz=11;
   if isfield(mol,'text2plot') %plot labels on strucrute, e.g. bind lengthes
     for I=1:numel(mol.text2plot)
         text2plot = mol.text2plot(I);
         dy = 0;
 %        dy = 1.4*(mod(I,2)-0.5); % displacemant to texts do not overlap
-        htext = text(text2plot.x, text2plot.y-dy, text2plot.z, text2plot.text, 'FontSize',3, 'HorizontalAlignment','center');
+        htext = text(text2plot.x, text2plot.y-dy, text2plot.z, text2plot.text, 'FontSize',fontsz, 'HorizontalAlignment','center');
         
     end
   end

@@ -22,7 +22,8 @@
 %+2. на рисунку відносної електронної енергії відсутні позначення початкових та кінцевих структур, що ускладнює аналіз графіка
 %?3. на рисунках, на яких побудовано декілька графіків, слід біля кожного із них робити підпис, якому звязку він відповідає; а також слід вибрати різні значення, щоб у чорно-білому варіанті графік був читабельним
 %?4. зроби окрулення так, як це було у надсіланих раніше приклада для пари АТ (особливо це стосується ро та лаплас ро)
-%+5. Мюлікеновські заряди поки не будемо робити, тому не витрачай на них часу
+%+5. Мюлікеновські заряди поки не будемо робити, тому не витрачай на них
+%часу
 %+/-6. для звязку С2Н...О2 дані наведи на окремих графіках
 
 %2012-1015
@@ -42,26 +43,38 @@ global flplot
 clear 
 atomsind
 
-PLOTTYPE_deltaE=0;
-PLOTTYPE_mu=1;
-PLOTTYPE_Mulliken_q_H=2;
-PLOTTYPE_Mulliken_q_A=3;
-PLOTTYPE_rho=4;
-PLOTTYPE_deltarho=5;
-PLOTTYPE_epsilon=6;
-PLOTTYPE_EHB=7;
-PLOTTYPE_dAB=8;
-PLOTTYPE_dAH=9;
-PLOTTYPE_aAHB=10;
-PLOTTYPE_RHH=11;
-PLOTTYPE_aglyc=12;
-PLOTTYPE_rho_CH=13;
-PLOTTYPE_deltarho_CH=14;
-PLOTTYPE_epsilon_CH=15;
-PLOTTYPE_EHB_CH=16;
-PLOTTYPE_dAH_CH=17;
-PLOTTYPE_max=18;
+% PLOTTYPE_deltaE=0;
+% PLOTTYPE_mu=1;
+% PLOTTYPE_Mulliken_q_H=2;
+% PLOTTYPE_Mulliken_q_A=3;
+% PLOTTYPE_rho=4;
+% PLOTTYPE_deltarho=5;
+% PLOTTYPE_epsilon=6;
+% PLOTTYPE_EHB=7;
+% PLOTTYPE_dAB=8;
+% PLOTTYPE_dAH=9;
+% PLOTTYPE_aAHB=10;
+% PLOTTYPE_RHH=11;
+% PLOTTYPE_aglyc=12;
+% PLOTTYPE_rho_CH=13;
+% PLOTTYPE_deltarho_CH=14;
+% PLOTTYPE_epsilon_CH=15;
+% PLOTTYPE_EHB_CH=16;
+% PLOTTYPE_dAH_CH=17;
+% PLOTTYPE_max=18;
 
+
+%!!!2012-1030: MP2 enerhy detected for all point except IRC=0 is wrong - HF energy is
+%taken instead of MP2
+
+ATOMS=35;
+Hbond_DelSqRho_crit_value = -0.026 %#ok<NOPTS> %if DelSqRho of (3,-1) CP is less than this value assume this CP as Hbond
+%-0.022 is taken from Hyp_Hyp eps==1 deltarho(O6H)==0 : deltarho(O6H) in
+%nearest calculated point irc=-0.316 is -0.021
+%-0.025 is taken fron Hyp-Cyt eps=1 deltarho(O6H)==0: irc=0.031, nearest
+%irc=0.060, deltarho=-0.025
+
+global flags
 flags={};
 iCPcutoff=[0 0 0 0];
 cutoffs=[];
@@ -71,210 +84,270 @@ bondlist=[];
 anglist=[];
 
 %-------------------------------------------------------------------
-flags.develmode = 1;
-if 0
-    complextype='HypHyp';
-    bondlist = [13 25]; %R_HH
-    anglist  = [ 3 13 25; 13 25 24]; %alpha1, alpha2
-    limits_filename = 'E:\work\Brovarets\120216_IRC_Hyp\Hyp-Hyp\Hyp-Hyp_limits.mat';
-    molpind={};
-    molpind{7}='C6';
-    molpind{8}='O6';
-    molpind{9}='N1';
-    molpind{11}='C2';
-    molpind{10}='H';
-    molpind{14}='H';
-    molpind{16}='N1';%''
-    molpind{17}='C2';%''
-    molpind{27}='C6';%''
-    molpind{28}='O6';%''
-    molpind{15}='H';%''
-    molpind{18}='H';%''
-    molpind{3}='N9';
-    molpind{13}='H9';
-    molpind{24}='N9';%''
-    molpind{25}='H9';%''
-    if 0
-        indir='E:\work\Brovarets\120216_IRC_Hyp\Hyp-Hyp\Hyp-Hyp_tight_int'
-        workname='irc_b3lyp_tight_int'%#ok
-%        iCPcutoff=[1 3 0 0];
-        iCPcutoff=[1 2 0 0];
-        cutoffs=[ -6.64 -0.34 -0.15 0.00 0.20 3.37]; %interpolated
-    elseif 1
-        indir='E:\work\Brovarets\120216_IRC_Hyp\Hyp-Hyp\Hyp-Hyp_eps4_tight_int'
-        workname='irc_b3lyp_tight_eps4'%#ok
-%        iCPcutoff=[1 3 0 0];
-        iCPcutoff=[1 2 0 0];
-        cutoffs=[-6.92 -0.35 -0.18 0.00 0.17 3.17]; %interpolated
-    elseif 1
-        indir='E:\work\Brovarets\120216_IRC_Hyp\Hyp-dimer'
-        workname='irc_b3lyp_631gdp'%#ok
-        limits_filename = 'E:\work\Brovarets\120216_IRC_Hyp\Hyp-dimer\Hyp-dimer_limits.mat';
-        flags.semilogy_for_ellipticity=1;
-%        iCPcutoff=[1 3 2 4];
-        iCPcutoff=1:4;
-    end
-
-elseif 1
-    complextype='HypCyt';
-    bondlist = [12 24]; %R_HH
-    anglist  = [ 1 12 24; 12 24 13]; %alpha1, alpha2
-    limits_filename = 'E:\work\Brovarets\120216_IRC_Hyp\Hyp-Cyt\Hyp-Cyt_limits.mat';
-    molpind={};
-    molpind{6}='C6';
-    molpind{7}='O6';
-    molpind{8}='N1';
-    molpind{9}='C2';
-    molpind{19}='N4';
-    molpind{21}='N3';
-    molpind{23}='O2';
-    molpind{25}='H';
-    molpind{26}='H';
-    molpind{27}='H';
-    molpind{1}='N9';
-    molpind{12}='H';
-    molpind{13}='N1';
-    molpind{24}='H';
-    if 1
-        indir='E:\work\Brovarets\120216_IRC_Hyp\Hyp-Cyt\Hyp-Cyt_tight_int'
-        workname='irc_b3lyp_tight_int'%#ok
-%        iCPcutoff=[1 3 2 4];
-        iCPcutoff=1:4;
-        cutoffs=[-5.15 -1.01 -0.79 -0.51 0.00 0.03 0.19 0.44 3.23]; %interpolated
-    elseif 1
-%        indir='E:\work\Brovarets\120216_IRC_Hyp\Hyp-Cyt\Hyp-Cyt_tight_int_eps4'
-        indir='E:\work\Brovarets\120216_IRC_Hyp\Hyp-Cyt\Hyp-Cyt_tight_int_eps4_full'
-%        iCPcutoff=[1 4 2 3 ];
-        iCPcutoff=1:4;
-        cutoffs=[-11.15 -7.12 -6.91 -6.65 -0.20 -0.06  0.00  0.20  1.82]; %interpolated
-%        indir='E:\work\Brovarets\120216_IRC_Hyp\Hyp-Cyt\Hyp-Cyt_tight_int_eps4_p2_corrected'
-        workname='irc_b3lyp_tight_eps4'%#ok
-    end
-
-elseif 1
-    complextype='HypThy';
-    bondlist = [13 21]; %R_HH
-    anglist  = [ 1 13 21; 13 21 20]; %alpha1, alpha2
-    molpind={};
-    molpind{6}='C6';
-    molpind{7}='O6';
-    molpind{8}='N1';
-    molpind{10}='C2';
-    molpind{14}='O4';
-    molpind{16}='C4';
-    molpind{17}='N3';
-    molpind{18}='C2';
-    molpind{19}='O2';
-    molpind{9}='H';
-    molpind{15}='H';
-    molpind{29}='H';
-    molpind{1}='N9';
-    molpind{13}='H';
-    molpind{20}='N1';
-    molpind{21}='H1';
-    if 0
-        indir='E:\work\Brovarets\120216_IRC_Hyp\Hyp-Thy\Hyp-Thy_tight_int'
-        workname='irc_b3lyp_tight_int'%#ok
-        limits_filename = 'E:\work\Brovarets\120216_IRC_Hyp\Hyp-Thy\Hyp-Thy_limits.mat';
-%        iCPcutoff=[1 4 2 3 ];
-        iCPcutoff=1:4;
-        cutoffs=[-5.94 -0.50 -0.26 0.00 0.01 0.14 0.34 0.51 4.82]; %interpolated
-    elseif 1
-        indir='E:\work\Brovarets\120216_IRC_Hyp\Hyp-Thy\Hyp-Thy_tight_int_eps4'
-        workname='irc_b3lyp_tight_eps4'%#ok
-        limits_filename = 'E:\work\Brovarets\120216_IRC_Hyp\Hyp-Thy\Hyp-Thy_limits.mat';
-%        iCPcutoff=[1 4 2 3 ];
-        iCPcutoff=1:4;
-        cutoffs=[-6.37 -0.40 -0.17 0.00 0.03 0.27 0.45 0.62 5.52]; %interpolated
-    elseif 1
-        indir='E:\work\Brovarets\120216_IRC_Hyp\Hyp_O_Thy\Hyp_O_Thy_tight_int'
-        workname='irc_b3lyp_tight'%#ok
-        limits_filename = 'E:\work\Brovarets\120216_IRC_Hyp\Hyp_O_Thy\Hyp_O_Thy_limits.mat';
-%        iCPcutoff=[1 4 2 3 ];
-        iCPcutoff=1:4;
-%        cutoffs=[-5.52 -0.28 -0.45 -0.62 0.00 -0.06 0.17 0.39 6.37];
-    elseif 0
-        indir='E:\work\Brovarets\120216_IRC_Hyp\Hyp_O_Thy\Hyp_O_Thy_tight_int_eps4'
-        workname='irc_b3lyp_tight_eps4'%#ok
-        limits_filename = 'E:\work\Brovarets\120216_IRC_Hyp\Hyp_O_Thy\Hyp_O_Thy_limits.mat';
-%        iCPcutoff=[1 4 2 3 ];
-        iCPcutoff=1:4;
-%        cutoffs=[-5.52 -0.28 -0.45 -0.62 0.00 -0.06 0.17 0.39 6.37];
-    end
-
-elseif 0
-    workname='irc120321'%#ok
-elseif 0
-%    indir='E:\work\Brovarets\120411_irc_AT_GC\b3lyp\AT'%#ok
-%    indir='E:\work\Brovarets\120411_irc_AT_GC\b3lyp\AT\AT_wfn_tight_int'%#ok
-%    indir='E:\work\Brovarets\120411_irc_AT_GC\b3lyp\Ade_H' %#ok
-%    indir='E:\work\Brovarets\120411_irc_AT_GC\b3lyp\AT_tight'
-%    indir='E:\work\Brovarets\120411_irc_AT_GC\b3lyp\AT_int'
-%    indir='E:\work\Brovarets\120411_irc_AT_GC\b3lyp\AT_tight_int'
-%    indir='E:\work\Brovarets\120411_irc_AT_GC\b3lyp\AT_tight_int_step1'
-%    indir='E:\work\Brovarets\120411_irc_AT_GC\b3lyp\AT_tight_int_step5'
-    workname='irc_b3lyp_tight_int'%#ok
-%    workname='irc120321_freq'
-    bondlist = [11 24]; %indexes of edge glicosidic atoms
-    anglist  = [ 1 11 24; 15 24 11];
-    aimbondlist = [8 14];
-elseif 0
-%    indir='E:\work\Brovarets\120411_irc_AT_GC\b3lyp\GC'%#ok
-%    indir='E:\work\Brovarets\120411_irc_AT_GC\b3lyp\GC_tight_int'%#ok
-    workname='irc_b3lyp_tight_int'%#ok
-%    workname='irc120321_freq'
-    bondlist = [14 26];
-    anglist  = [ 1 14 26; 15 26 14];
-elseif 0
-    indir='E:\work\Brovarets\120411_irc_AT_GC\mp2'%#ok
-%    workname='irc120411_mp2'
-    workname='irc120425_mp2_tight'%#ok
-elseif 0
-%    indir='E:\work\Brovarets\1204_irc_dnucl_SN\dAdo'%#ok
-%    workname='irc_b3lyp'%#ok
-%    indir='E:\work\Brovarets\1204_irc_dnucl_SN\b3lyp_631gpd'%#ok
-%    indir='E:\work\Brovarets\1204_irc_dnucl_SN\dCyd_631gpd'%#ok
-%    indir='E:\work\Brovarets\1204_irc_dnucl_SN\dThd_631gpd'%#ok
-%    indir='E:\work\Brovarets\1204_irc_dnucl_SN\dAdo_631Gdp'%#ok
-%    indir='E:\work\Brovarets\1204_irc_dnucl_SN\dUrd_631gdp'%#ok
-%    indir='E:\work\Brovarets\1204_irc_dnucl_SN\bohill'%#ok
-    workname='irc_b3lyp_631gdp'%#ok
-elseif 0
-%    indir='E:\work\Brovarets\120411_irc_AT_GC\b3lyp\AT_eps4_tight_int'%#ok
-%    indir='E:\work\Brovarets\120411_irc_AT_GC\b3lyp\AT_eps4_tight_int_2parts'%#ok
-%    indir='E:\work\Brovarets\120411_irc_AT_GC\b3lyp\GC_eps4_tight_int'%#ok
-    workname='irc_b3lyp_tight_eps4'%#ok
-end
+flags.develmode = 0;
+flags.irc_tick_interval = NaN; %automatically
 
 flplot=1    %#ok
 fl_tosave = 1 %#ok
+fl_plotpics = 1 %#ok
 fl_savepics = 1 %#ok
 fl_recreate_matfile = 0 %#ok
 fl_reload_sp = 0   %#ok
 fl_reload_freq = 0 %#ok
 fl_reload_extout = 0 %#ok
 
-fl_plot_milliken = 0 %#ok
+%fl_plot_milliken = 0 %#ok
 
-%mode='gjf'
-mode='anal' %#ok
+molpind=cell(1,ATOMS);
+for i=1:numel(molpind)
+    molpind{i}='';
+end
+
+
+complextype='HypHyp'; methods=[{'b3lyp_vac'},{'b3lyp_eps4'}];
+%complextype='HypCyt'; methods=[{'b3lyp_vac'},{'b3lyp_eps4'}];
+%complextype='HypThy'; methods=[{'b3lyp_vac'},{'b3lyp_eps4'}];
+%complextype='GC'; methods=[{'b3lyp_vac'},{'b3lyp_eps4'},{'mp2_vac'}];
+%complextype='GC'; methods=[{'mp2_vac'}];
+%complextype='AT'; methods=[{'b3lyp_vac'},{'b3lyp_eps4'},{'mp2_vac'}];
+
+common_out_dir = 'E:\work\Brovarets\121106_dE_dIRC';
+if ~(exist(common_out_dir,'dir')==7)
+     mkdir(common_out_dir);
+end
+
+disp(['Time: ' datestr(now)]);
+
+for l_ind=1:numel(methods)
+    cur_method=methods{l_ind};
+
+    disp(['Time: ' datestr(now)]);
+
+    if strcmp(complextype,'HypHyp')
+        bondlist = [13 25]; %R_HH
+        anglist  = [ 3 13 25; 13 25 24]; %alpha1, alpha2
+        limits_filename = 'E:\work\Brovarets\120216_IRC_Hyp\Hyp-Hyp\Hyp-Hyp_limits.mat';
+        IRCdesc = [{'(Hyp \bullet Hyp)'},{'(TS_{Hyp \bullet Hyp \leftrightarrow Hyp* \bullet Hyp*})'},{'(Hyp* \bullet Hyp*)'}];
+        molpind{7}='C6';
+        molpind{8}='O6';
+        molpind{9}='N1';
+        molpind{11}='C2';
+        molpind{10}='H';
+        molpind{14}='H';
+        molpind{16}='N1';%''
+        molpind{17}='C2';%''
+        molpind{27}='C6';%''
+        molpind{28}='O6';%''
+        molpind{15}='H';%''
+        molpind{18}='H';%''
+        molpind{3}='N9';
+        molpind{13}='H9';
+        molpind{24}='N9';%''
+        molpind{25}='H9';%''
+        if strcmp(cur_method,'b3lyp_vac')
+            indir = 'E:\work\Brovarets\120216_IRC_Hyp\Hyp-Hyp\Hyp-Hyp_tight_int' %#ok<NOPTS>
+            workname='irc_b3lyp_tight_int'%#ok
+    %        iCPcutoff=[1 3 0 0];
+            iCPcutoff=[1 2 0 0];
+            cutoffs=[ -6.64 -0.34 -0.15 0.00 0.20 3.37]; %interpolated
+        elseif strcmp(cur_method,'b3lyp_eps4')
+            indir='E:\work\Brovarets\120216_IRC_Hyp\Hyp-Hyp\Hyp-Hyp_eps4_tight_int' %#ok<NOPTS>
+            workname='irc_b3lyp_tight_eps4'%#ok
+    %        iCPcutoff=[1 3 0 0];
+            iCPcutoff=[1 2 0 0];
+            cutoffs=[-6.92 -0.37 -0.19 0.00 0.17 3.17]; %interpolated
+        elseif 0
+            indir='E:\work\Brovarets\120216_IRC_Hyp\Hyp-dimer'  %#ok
+            workname='irc_b3lyp_631gdp'%#ok
+            limits_filename = 'E:\work\Brovarets\120216_IRC_Hyp\Hyp-dimer\Hyp-dimer_limits.mat';
+            flags.semilogy_for_ellipticity=1;
+    %        iCPcutoff=[1 3 2 4];
+            iCPcutoff=1:4;
+        elseif 0
+            indir='E:\work\Brovarets\120216_IRC_Hyp\Hyp-dimer\Hyp-dimer_tight_int' %#ok<NOPTS>
+            workname='irc_b3lyp_tight_int'%#ok
+            limits_filename = 'E:\work\Brovarets\120216_IRC_Hyp\Hyp-dimer\Hyp-dimer_limits.mat';
+            flags.semilogy_for_ellipticity=1;
+    %        iCPcutoff=[1 3 2 4];
+        elseif 1
+            indir='E:\work\Brovarets\120216_IRC_Hyp\Hyp-dimer\Hyp-dimer_tight_int_eps4' %#ok<NOPTS>
+            workname='irc_b3lyp_tight_eps4'%#ok
+            limits_filename = 'E:\work\Brovarets\120216_IRC_Hyp\Hyp-dimer\Hyp-dimer_limits.mat';
+            flags.semilogy_for_ellipticity=1;
+            iCPcutoff=[1 2 3 4];
+            cutoffs = [-18.87 -0.73 -0.51 -0.25  0.00  4.27  4.57  4.70 23.42];
+        end
+
+    elseif strcmp(complextype,'HypCyt')
+        bondlist = [12 24]; %R_HH
+        anglist  = [ 1 12 24; 12 24 13]; %alpha1, alpha2
+        IRCdesc = [{'(Hyp \bullet Cyt)'},{'(TS_{Hyp \bullet Cyt \leftrightarrow Hyp* \bullet Cyt*})'},{'(Hyp* \bullet Cyt*)'}];
+        limits_filename = 'E:\work\Brovarets\120216_IRC_Hyp\Hyp-Cyt\Hyp-Cyt_limits.mat';
+        molpind{6}='C6';
+        molpind{7}='O6';
+        molpind{8}='N1';
+        molpind{9}='C2';
+        molpind{19}='N4';
+        molpind{21}='N3';
+        molpind{23}='O2';
+        molpind{25}='H';
+        molpind{26}='H';
+        molpind{27}='H';
+        molpind{1}='N9';
+        molpind{12}='H9';
+        molpind{13}='N1';
+        molpind{24}='H1';
+        if strcmp(cur_method,'b3lyp_vac')
+            indir='E:\work\Brovarets\120216_IRC_Hyp\Hyp-Cyt\Hyp-Cyt_tight_int' %#ok<NOPTS>
+            workname='irc_b3lyp_tight_int'%#ok
+    %        iCPcutoff=[1 3 2 4];
+            iCPcutoff=1:4;
+            cutoffs=[-5.15 -1.01 -0.79 -0.51 0.00 0.03 0.19 0.44 3.23]; %interpolated
+        elseif strcmp(cur_method,'b3lyp_eps4')
+    %        indir='E:\work\Brovarets\120216_IRC_Hyp\Hyp-Cyt\Hyp-Cyt_tight_int_eps4'
+            indir='E:\work\Brovarets\120216_IRC_Hyp\Hyp-Cyt\Hyp-Cyt_tight_int_eps4_full' %#ok<NOPTS>
+    %        iCPcutoff=[1 4 2 3 ];
+            iCPcutoff=1:4;
+            cutoffs=[-11.15 -7.12 -6.91 -6.65 -0.20 -0.06  0.00  0.20  1.82]; %interpolated
+    %        indir='E:\work\Brovarets\120216_IRC_Hyp\Hyp-Cyt\Hyp-Cyt_tight_int_eps4_p2_corrected'
+            workname='irc_b3lyp_tight_eps4'%#ok
+            flags.irc_tick_interval = 1;
+        end
+
+    elseif strcmp(complextype,'HypThy')
+        bondlist = [13 21]; %R_HH
+        anglist  = [ 1 13 21; 13 21 20]; %alpha1, alpha2
+        IRCdesc = [{'(Hyp\ast \bullet Thy)'},{'(TS_{Hyp* \bullet Thy \leftrightarrow Hyp \bullet Thy*})'},{'(Hyp \bullet Thy*)'}];
+        molpind{6}='C6';
+        molpind{7}='O6';
+        molpind{8}='N1';
+        molpind{10}='C2';
+        molpind{14}='O4';
+        molpind{16}='C4';
+        molpind{17}='N3';
+        molpind{18}='C2';
+        molpind{19}='O2';
+        molpind{9}='H';
+        molpind{15}='H';
+        molpind{29}='H';
+        molpind{1}='N9';
+        molpind{13}='H9';
+        molpind{20}='N1';
+        molpind{21}='H1';
+        if strcmp(cur_method,'b3lyp_vac')
+            indir='E:\work\Brovarets\120216_IRC_Hyp\Hyp-Thy\Hyp-Thy_tight_int' %#ok<NOPTS>
+            workname='irc_b3lyp_tight_int'%#ok
+            limits_filename = 'E:\work\Brovarets\120216_IRC_Hyp\Hyp-Thy\Hyp-Thy_limits.mat';
+    %        iCPcutoff=[1 4 2 3 ];
+            iCPcutoff=1:4;
+            cutoffs=[-5.94 -0.50 -0.26 0.00 0.01 0.14 0.34 0.51 4.82]; %interpolated
+        elseif strcmp(cur_method,'b3lyp_eps4')
+            indir='E:\work\Brovarets\120216_IRC_Hyp\Hyp-Thy\Hyp-Thy_tight_int_eps4' %#ok<NOPTS>
+            workname='irc_b3lyp_tight_eps4'%#ok
+            limits_filename = 'E:\work\Brovarets\120216_IRC_Hyp\Hyp-Thy\Hyp-Thy_limits.mat';
+    %        iCPcutoff=[1 4 2 3 ];
+            iCPcutoff=1:4;
+            cutoffs=[-6.37 -0.40 -0.17 0.00 0.03 0.27 0.45 0.62 5.52]; %interpolated
+        elseif 0
+            indir='E:\work\Brovarets\120216_IRC_Hyp\Hyp_O_Thy\Hyp_O_Thy_tight_int' %#ok<NOPTS>
+            workname='irc_b3lyp_tight'%#ok
+            limits_filename = 'E:\work\Brovarets\120216_IRC_Hyp\Hyp_O_Thy\Hyp_O_Thy_limits.mat';
+    %        iCPcutoff=[1 4 2 3 ];
+            iCPcutoff=1:4;
+    %        cutoffs=[-5.52 -0.28 -0.45 -0.62 0.00 -0.06 0.17 0.39 6.37];
+        elseif 0
+            indir='E:\work\Brovarets\120216_IRC_Hyp\Hyp_O_Thy\Hyp_O_Thy_tight_int_eps4' %#ok<NOPTS>
+            workname='irc_b3lyp_tight_eps4'%#ok
+            limits_filename = 'E:\work\Brovarets\120216_IRC_Hyp\Hyp_O_Thy\Hyp_O_Thy_limits.mat';
+    %        iCPcutoff=[1 4 2 3 ];
+            iCPcutoff=1:4;
+    %        cutoffs=[-5.52 -0.28 -0.45 -0.62 0.00 -0.06 0.17 0.39 6.37];
+        end
+
+    elseif strcmp(complextype,'GC')
+        bondlist = [14 26];
+        anglist  = [ 1 14 26; 15 26 14];
+        molpind{6}='C6';
+        molpind{7}='O6';
+        molpind{8}='N1';
+        molpind{9}='C2';
+        molpind{10}='N2';
+        molpind{21}='N4';
+        molpind{23}='N3';
+        molpind{24}='C2';
+        molpind{25}='O2';
+        molpind{27}='H';
+        molpind{28}='H';
+        molpind{29}='H';
+        molpind{1}='N9';
+        molpind{14}='H9';
+        molpind{15}='N1';
+        molpind{26}='H1';
+        IRCdesc = [{'(G \bullet C)'},{'(TS_{G \bullet C \leftrightarrow G* \bullet C*})'},{'(G* \bullet C*)'}];
+
+        limits_filename = 'E:\work\Brovarets\120411_irc_AT_GC\GC_limits.mat';
+        if strcmp(cur_method,'b3lyp_vac')
+            indir = 'E:\work\Brovarets\120411_irc_AT_GC\b3lyp\GC_tight_int' %#ok<NOPTS>
+            workname ='irc_b3lyp_tight_int'%#ok
+    %        iCPcutoff=[1 4 2 3 ];
+        elseif strcmp(cur_method,'b3lyp_eps4')
+            indir='E:\work\Brovarets\120411_irc_AT_GC\b3lyp\GC_eps4_tight_int' %#ok<NOPTS>
+            workname ='irc_b3lyp_tight_eps4'%#ok
+            limits_filename = 'E:\work\Brovarets\120216_IRC_Hyp\Hyp-Thy\Hyp-Thy_limits.mat';
+    %        iCPcutoff=[1 4 2 3 ];
+        elseif strcmp(cur_method,'mp2_vac')
+            indir='E:\work\Brovarets\120411_irc_AT_GC\mp2\GC_MP2' %#ok<NOPTS>
+            workname = 'irc120411_mp2' %#ok<NOPTS>
+    %        workname='irc120425_mp2_tight'%#ok
+            limits_filename = 'E:\work\Brovarets\120216_IRC_Hyp\Hyp-Thy\Hyp-Thy_limits.mat';
+    %        iCPcutoff=[1 4 2 3 ];
+        end
+
+    elseif strcmp(complextype,'AT')
+        limits_filename = 'E:\work\Brovarets\120411_irc_AT_GC\AT_limits.mat';
+        bondlist = [11 24]; %indexes of edge glicosidic atoms
+        anglist  = [ 1 11 24; 15 24 11];
+    %    aimbondlist = [8 14];
+        molpind{6}='N6';
+        molpind{7}='N1';
+        molpind{8}='C2';
+        molpind{20}='O4';
+        molpind{19}='C4';
+        molpind{21}='N3';
+        molpind{22}='C2';
+        molpind{23}='O2';
+        molpind{14}='H';
+        molpind{29}='H';
+        molpind{30}='H';
+        molpind{1}='N9';
+        molpind{11}='H9';
+        molpind{15}='N1';
+        molpind{24}='H1';
+        IRCdesc = [{'(A \bullet T)'},{'(TS_{A \bullet T \leftrightarrow A* \bullet T*})'},{'(A* \bullet T*)'}];
+        if strcmp(cur_method,'b3lyp_vac')
+            indir='E:\work\Brovarets\120411_irc_AT_GC\b3lyp\AT_tight_int_step5';
+            workname = 'irc_b3lyp_tight_int' %#ok<NOPTS>
+        elseif strcmp(cur_method,'b3lyp_eps4')
+            indir='E:\work\Brovarets\120411_irc_AT_GC\b3lyp\AT_eps4_tight_int';
+            workname ='irc_b3lyp_tight_eps4'%#ok
+        elseif strcmp(cur_method,'mp2_vac')
+            indir='E:\work\Brovarets\120411_irc_AT_GC\mp2\AT_MP2';
+            workname = 'irc120411_mp2' %#ok<NOPTS>
+        end
+    end
 %-------------------------------------------------------------------
 
 diaryfname0=[indir filesep 'logfile'];
 diaryfname=diaryfname0;
 for i=2:10000
-  if ~(exist(diaryfname,'file')==2)
-    break
-  end
+  if ~(exist(diaryfname,'file')==2), break, end
   diaryfname = [diaryfname0 int2str(i)];
 end
 diary(diaryfname)
 
-disp(['Time: ' datestr(now)]);
 indir %#ok
 diaryfname %#ok
 
-%savemode.gsxyz = 1;
 gtemplname=[workname '_templ.gjf']  %#ok
 fullgtemplname=[CD.templatesdir filesep gtemplname] %#ok
 
@@ -284,19 +357,24 @@ odir=indir;
 if exist(odir,'dir')~=7
    mkdir(odir);
 end
+dlm=strfind(odir,filesep);
+baseodir = odir(dlm(end)+1:end);
+gjf_odir = [baseodir '_gjf'];
 
-lfiles = dir(strcat(indir,filesep,'*.list'));
-num_listfiles = size(lfiles,1);
-if ~num_listfiles
-  error('No LIST files to analyse found');
-end
-
-for l_ind=1:num_listfiles
+ lfiles = dir(strcat(indir,filesep,'*.list'));
+ num_listfiles = size(lfiles,1);
+ if ~num_listfiles
+   error('No LIST files to analyse found');
+ end
+% 
+% for l_ind=1:num_listfiles
+    listingfile=lfiles(1); %processing only one listing per directory!!!
+    
 
     %forming filenames on the base on list filename
-    dlm=strfind(lfiles(l_ind).name,'.');
-    fnameshort = lfiles(l_ind).name(1:(dlm-1));
-    workdbname = [indir filesep fnameshort '.mat']; %#ok
+    dlm=strfind(listingfile.name,'.');
+    fnameshort = listingfile.name(1:(dlm-1));
+    workdbname = [indir filesep fnameshort '.mat']; 
     dlm=strfind(workdbname,'.');
     workdbnamebkp=[workdbname(1:dlm(end)-1) '~' workdbname(dlm(end):end)];
     xlsfile = [indir filesep fnameshort '.xls'] %#ok
@@ -309,8 +387,8 @@ for l_ind=1:num_listfiles
     
     if fl_recreate_matfile || exist(workdbname,'file')~=2
 
-        disp(['Reading ' lfiles(l_ind).name ]);
-        [outfiles,irc_directions,irc_shifts]=textread([indir '\' lfiles(l_ind).name],'%s%f%f');
+        disp(['Reading ' listingfile.name ]);
+        [outfiles,irc_directions,irc_shifts,irc_isrefinements]=textread([indir '\' listingfile.name],'%s%d%f%d');
 
         if ~numel(outfiles)
             disp('No Gaussian output files found. Skipping.');
@@ -319,7 +397,7 @@ for l_ind=1:num_listfiles
         ircdb={};
 
         for out_ind=1:numel(outfiles)
-            if (outfiles{out_ind}(1)==';'), continue, end %skip commented lines
+            if (outfiles{out_ind}(1)==';' || outfiles{out_ind}(1)=='%'), continue, end %skip commented lines
 
             dlm=strfind(outfiles{out_ind},'.');
             out = [];
@@ -335,14 +413,23 @@ for l_ind=1:num_listfiles
             else
                 irc_shift = 0;
             end
+            if out_ind<=numel(irc_isrefinements)
+                irc_isrefinement = irc_isrefinements(out_ind);
+            else
+                irc_isrefinement = 0;
+            end
 
         %    try
                 disp(['Loading file: ' out.ffname])
                 %processing single OUT file
                 fid=fopen(out.ffname,'r'); % don't use text mode - this is dangerous for Unix files ;)
+                if fid<0
+                    error(['error while opening file ' out.ffname])
+                end
 
                 fl_ircstart = 0;
                 fl_good_geom_found = 0;
+                fl_chkdata_found = 0;
 
                 frewind(fid);
 
@@ -351,9 +438,9 @@ for l_ind=1:num_listfiles
                     tline = fgetl(fid);
                     if ~ischar(tline), break, end
 
-                    if ~isempty(strfind(tline,'Cartesian coordinates read from the checkpoint file')) || ...
-                       ~isempty(strfind(tline,'Redundant internal coordinates taken from checkpoint file'))
+                    if ~isempty(strfind(tline,'Cartesian coordinates read from the checkpoint file')) 
                         disp('Initial coordinates found'); %point #0
+                        fl_chkdata_found = 1;
 
                         for i=1:2, tline=fgets(fid); end  
                         [ms0,status]=extrgeom(fid,1,0);
@@ -365,6 +452,28 @@ for l_ind=1:num_listfiles
                     
                         ms0.point = 0;
                         ms0.irc = 0 + irc_shift;
+
+                    elseif ~isempty(strfind(tline,'Redundant internal coordinates taken from checkpoint file'))
+                        disp('Initial coordinates found'); %point #0
+                        fl_chkdata_found = 1;
+
+                        for i=1:2, tline=fgets(fid); end 
+                        
+                        [ms0,status]=extrgeom(fid,1,0);
+                        if status
+                            disp([worktitle,': ',lastwarn]);
+                            fclose(fid);
+                            break
+                        end
+                    
+                        ms0.point = 0;
+                        ms0.irc = 0 + irc_shift;
+                    elseif ~isempty(strfind(tline,'INPUT DATA FOR L123'))
+                        if ~fl_chkdata_found 
+                            disp(['Pure IRC w/o checkpoint data detected']); %#ok<NBRAK>
+                            fl_ircstart = 1;
+                            break;
+                        end
 
                     elseif ~isempty(strfind(tline,'Energy From Chk'))
                         %Energy From Chk =   -921.7421354         
@@ -380,13 +489,14 @@ for l_ind=1:num_listfiles
                         
                         ms0.desc = [out.fnameshort '_#' sprintf('%03d',ms0.point)];
                         order=1:ms0.atomnum;
-                        %if strcmp(mode,'gjf') 
-                        if exist([odir filesep 'gjf' filesep ms0.desc '.gjf'],'file')~=2 %create input Gaussian file
-                            if exist([odir filesep 'gjf'],'dir')~=7
-                                mkdir(odir,'gjf');
+                        if exist([odir filesep gjf_odir filesep ms0.desc '.gjf'],'file')~=2 %create input Gaussian file
+                            if exist([odir filesep gjf_odir],'dir')~=7
+                                mkdir(odir,gjf_odir);
                             end
-                            savemolgs([odir filesep 'gjf'],ms0,3,order,fullgtemplname); %Gaussian with XYZ
+                            savemolgs([odir filesep gjf_odir],ms0,3,order,fullgtemplname); %Gaussian with XYZ
                         end
+                        
+                        ms0.irc_isrefinement = irc_isrefinement;
                         if isempty(ircdb)
                             ircdb=ms0;
                         else
@@ -430,8 +540,12 @@ for l_ind=1:num_listfiles
 
                     elseif ~isempty(strfind(tline,'SCF Done')) 
                     % SCF Done:  E(RB3LYP) =  -941.576443161     A.U. after   12 cycles
-                       [xxx,xxx2]=strread(tline,'%s%f','delimiter','=');
-                       ms0.energy = xxx2;
+                       [v1,v2]=strread(tline,'%s%f','delimiter','=');
+                       ms0.energy = v2;
+                    elseif ~isempty(strfind(tline,'EUMP2 =')) 
+                    % E2 =    -0.2992511380D+01 EUMP2 =    -0.91922697437759D+03
+                       [v1,v2,v3,v4]=strread(tline,'%s%f%s%f','delimiter','=');
+                       ms0.energy = v4; %rewrote with MP2 energy if found
 
                     elseif ~isempty(strfind(tline,'Delta-x Convergence NOT Met'))
         %                disp(['Delta-x Convergence NOT Met']);
@@ -455,23 +569,27 @@ for l_ind=1:num_listfiles
                         A=[A{:}];
                         ms0.point = str2double(A{1});
 
-                        %NET REACTION COORDINATE UP TO THIS POINT =    0.26904
-                        pat = '\s*NET\sREACTION\sCOORDINATE\sUP\D+([\d\.]+)';
-                        A = regexp(buf, pat, 'tokens','once');
-                        A=[A{:}];
-                        ms0.irc = str2double(A{1})*irc_direction + irc_shift;
-
+                        if ms0.point==0
+                            ms0.irc = irc_shift;
+                        else
+                            %NET REACTION COORDINATE UP TO THIS POINT =    0.26904
+                            pat = '\s*NET\sREACTION\sCOORDINATE\sUP\D+([\d\.]+)';
+                            A = regexp(buf, pat, 'tokens','once');
+                            A=[A{:}];
+                            ms0.irc = str2double(A{1})*irc_direction + irc_shift;
+                        end
+                        
                         if fl_good_geom_found
                             ms0.desc = [out.fnameshort '_#' sprintf('%03d',ms0.point)];
                             order=1:ms0.atomnum;
-                            %if strcmp(mode,'gjf') 
-                            if exist([odir filesep 'gjf' filesep ms0.desc '.gjf'],'file')~=2 %create input Gaussian file
-                                if exist([odir filesep 'gjf'],'dir')~=7
-                                    mkdir(odir,'gjf');
+                            if exist([odir filesep gjf_odir filesep ms0.desc '.gjf'],'file')~=2 %create input Gaussian file
+                                if exist([odir filesep gjf_odir],'dir')~=7
+                                    mkdir(odir,gjf_odir);
                                 end
-                                savemolgs([odir filesep 'gjf'],ms0,3,order,fullgtemplname); %Gaussian with XYZ
+                                savemolgs([odir filesep gjf_odir],ms0,3,order,fullgtemplname); %Gaussian with XYZ
                             end
 
+                            ms0.irc_isrefinement = irc_isrefinement;
                             if isempty(ircdb)
                                 ircdb=ms0;
                             else
@@ -512,22 +630,11 @@ for l_ind=1:num_listfiles
 
  
 %--------------------------------------------------------------------------
-    pcolor=[{'r'} {'g'} {'b'} {'k'} {'m'} {'c'} ...
-            {[.5412 .1686 .8863]}  ...
-            {[0 .5 0]} {[.5 0 0]} {[0 0 .5]} {[.5 .5 0]} {[.5 0 .5]} {[0 .5 .5]} {[.5 .5 .5]} ...
-            {[.5 .1 .9]} {[.8 .2 .2]} {[.8 .8 .2]}...
-            {[.9 .4 .9]} {[.2 .4 .6]} {[.6 .4 .6]} {[.6 .2 .2]} {[.8 .2 .8]} ...
-            {[.2 .8 .8]} {[.2 .8 .2]} {[.2 .2 .8]} {[.4 .9 .1]} {[.1 .3 .6]} {'y'} {[.75 .75 .75]} {[.2745 .5098 .7059]}];
-    psign='dhxov^<>p+*.';
-    pstyle=[{'-'} {'--'} ];
-    lw = 0.5; %line width
-    ms = 4; %marker size (points)
-    msc = 5; %marker size for crosses (points)
-
     bdwidth = 2; %figure border (points)
     topbdwidth = 20; %figure top border (points)
     set(0,'Units','pixels') 
-    scnsize = get(0,'ScreenSize');
+%    scnsize = get(0,'ScreenSize');
+    scnsize = [0 0 1024 576];
     pos  = [bdwidth,... 
             bdwidth,...
             scnsize(3) - 2*bdwidth,...
@@ -542,7 +649,7 @@ for l_ind=1:num_listfiles
     fw1 = 0.5*(1-fw2); %width of ordinary field 
 
     %figure and axes for plotting to PS file
-    f_tmp = figure('PaperOrientation','portrait',...
+    f_tmp = figure('PaperOrientation','landscape',...
            'PaperType','A5',...
            'PaperUnits','centimeters',...
            'PaperPositionMode','manual',...
@@ -555,7 +662,7 @@ for l_ind=1:num_listfiles
     if exist(psfile,'file')
         movefile(psfile,psfilebkp);
     end
-    
+    label_fontsize = 14;
 
     data = {[]};
        
@@ -570,6 +677,12 @@ for l_ind=1:num_listfiles
     end
     
     [x,sort_ind]=sort([ircdb.irc]);
+    if flags.develmode
+        points2plot = ones(1,numel(ircdb));
+    else
+        points2plot = ~[ircdb.irc_isrefinement];
+        points2plot = points2plot(sort_ind);
+    end
     y=[ircdb.energy];
     y=y(sort_ind);
     y=(y-min(y))*CC.encoef;
@@ -577,41 +690,54 @@ for l_ind=1:num_listfiles
     col = 1;
     data(1,col)={'ind'};                data(2:numel(ircdb)+1,col) = num2cell(sort_ind); col=col+1;
     data(1,col)={'filename'};           data(2:numel(ircdb)+1,col) = {ircdb(sort_ind).desc}; col=col+1;
-    data(1,col)={'IRC, a.m.u.^{1/2}*bohr'}; data(2:numel(ircdb)+1,col) = num2cell(x); col=col+1;
+    data(1,col)={'IRC, Bohr'}; data(2:numel(ircdb)+1,col) = num2cell(x); col=col+1;
 
     fig_desc = 'E';
     txt = 'energy, kcal/mol';
     data(1,col)={txt};   data(2:numel(ircdb)+1,col) = num2cell(y); col=col+1;
     
-    h_plot = irc_plot(gca,x,y,1);
-    cur_axis = PlLim.correctlimit(fig_desc,[min(x) max(x) 0 max(y)]);
-    my_axis(cur_axis,fig_desc,cutoffs,[1 1 0 1],1);
-    ylabel('\Delta E, kcal/mol');
-    
-    set(gca,'Box','on','XMinorTick','on','YMinorTick','on');
-    xlabel('IRC, a.m.u.^{1/2}*bohr');
-    title('');
-    print(f_tmp,'-dpsc2', '-append', '-r300', psfile);
-%    clf(f_tmp);
+    if fl_plotpics
+        h_plot = irc_plot(gca,x(points2plot),y(points2plot),1); %#ok<NASGU>
+        params={};
+        params.flags=flags;
+        params.limits = PlLim.correctlimit(fig_desc,[min(x) max(x) 0 max(y)]);
+        my_axis(params,fig_desc,cutoffs,l_ind,[1 1 0 1],1);
+        fig_name = [complextype '_' fig_desc '_' cur_method];
+        set(gcf, 'Name',fig_name, 'FileName',fig_name);
+        orient landscape
+        export_fig([common_out_dir filesep fig_name],'-eps','-pdf','-transparent', '-r300');
+    %    print(f_tmp,'-dpsc2', '-append', '-r300', psfile);
+    end
     
     %----------------differentiating E over IRC
     fig_desc = 'diffE_irc';
-    txt = '{\delta}E/{\delta}IRC'; %, kcal/(mol*Bohr*a.m.u.^{1/2})
-    
-    [xd, xd_ind] = unique(x);
-    yd = y(xd_ind);
+    txt = '{\delta}E/{\delta}IRC'; 
+
+    xd = x(points2plot);
+    yd = y(points2plot);
+    [xd, xd_ind] = unique(xd);
+    yd = yd(xd_ind);
     y_deriv = deriv(yd)./deriv(xd);
-    cla
-    h_plot = irc_plot(gca,xd,y_deriv,1);
-    cur_axis = PlLim.correctlimit(fig_desc,[min(xd) max(xd) min(y_deriv) max(y_deriv)]);
-    my_axis(cur_axis,fig_desc,cutoffs);
-    ylabel('{\delta}E/{\delta}IRC');
+
+    data(1,col)={'IRC, Bohr'};   
+    data(2:numel(y_deriv)+1,col) = num2cell(xd); col=col+1;
+    data(1,col)={txt};   
+    data(2:numel(y_deriv)+1,col) = num2cell(y_deriv); col=col+1;
     
-    set(gca,'Box','on','XMinorTick','on','YMinorTick','on');
-    xlabel('IRC, a.m.u.^{1/2}*bohr');
-    title('');
-    print(f_tmp,'-dpsc2', '-append', '-r300', psfile);
+    if fl_plotpics
+        cla%reset(gca)
+        h_plot = irc_plot(gca,xd,y_deriv,1);
+        params={};
+        params.flags=flags;
+        params.limits = PlLim.correctlimit(fig_desc,[min(xd) max(xd) min(y_deriv) max(y_deriv)]);
+        my_axis(params,fig_desc,cutoffs,l_ind);
+        fig_name = [complextype '_' fig_desc '_' cur_method];
+        set(gcf,'Name',fig_name,'FileName',fig_name);
+        orient landscape
+        export_fig([common_out_dir filesep fig_name],'-eps','-pdf','-transparent', '-r300');
+    end
     
+%    print(f_tmp,'-dpsc2', '-append', '-r300', psfile);
     %--------------------------------------------------------------------------
     %analyzing Gaussian SP output files for dipole moment and charges
     dirlist = dir([indir filesep 'sp' ]);
@@ -668,6 +794,16 @@ for l_ind=1:num_listfiles
                     break
                   end
                   ircdb(iext).('mcharge')=A(3,:);%#ok %Mulliken atomic charges
+                  
+              elseif ~isempty(strfind(tline,'Summary of Natural Population Analysis:'))
+                  for ii=1:5, tline = fgetl(fid); end
+                  
+                  A=fscanf(fid,'%s %d %f %f %f %f %f',[7,double(ircdb(iext).atomnum)]);
+                  if isempty(A)
+                    warning('error in output file - couldn''n load charges. skipping');%#ok
+                    break
+                  end
+                  ircdb(iext).('nbocharge')=A(3,:);%#ok %NBO Natural charges
                   
               end
             end
@@ -969,13 +1105,6 @@ for l_ind=1:num_listfiles
 
                atoms=[sscanf(CPs(i).atoms{1},'%d') sscanf(CPs(i).atoms{2},'%d')];
                atoms=sort(atoms);
-               aa = ms0.btB(find( ms0.btA==atoms(1)));%#ok %atoms connected to atoms(1) 
-               if sum(aa==atoms(2))>0 %exclude covalent/ionic bonds
-%                    continue
-                   AIM.is_hbond(end+1,:)=0;
-               else
-                   AIM.is_hbond(end+1,:)=1;
-               end
 
                AIM.atoms(end+1,:)=atoms;
 %               AIM.desc(end+1)={bondstr};
@@ -988,6 +1117,19 @@ for l_ind=1:num_listfiles
                AIM.BondEl(end+1)=CPs(i).BondEl;
 %               AIM.pinds(end+1,1:numel(HBatomspinds))=HBatomspinds;
 
+               %exclude covalent/ionic bonds
+%                aa = ms0.btB(ms0.btA==atoms(1));%#ok %atoms connected to atoms(1) 
+%                if sum(aa==atoms(2))>0 
+               if CPs(i).DelSqRho > Hbond_DelSqRho_crit_value %-0.02
+                   AIM.is_hbond(end+1,:)=1;
+                   if CPs(i).DelSqRho < 0
+                       warning('CAN:irc',['contant between atoms ' int2str(atoms(1)) ' and ' int2str(atoms(2)) ' assumed as H-bond, but DelSqRho='...
+                           num2str(CPs(i).DelSqRho,'%0.3f') ]);
+                   end
+               else
+                   AIM.is_hbond(end+1,:)=0;
+               end
+               
             end
             
             ircdb(iext).AIM = AIM;%#ok
@@ -1004,6 +1146,7 @@ for l_ind=1:num_listfiles
     uniqCPind = []; %contains pairs of indexes of bond atoms
     uniqCP_Hatom_ind = []; %what H atom is in each H-bond from uniqCPind
     uniqCP_irc_struct_ind = [];
+    uniqCP_Aatom_ind = [];
     for ind_irc=1:numel(ircdb) %over IRC points
         mol = ircdb(ind_irc);
         if ~isfield(mol,'AIM') || isempty(mol.AIM)
@@ -1017,7 +1160,27 @@ for l_ind=1:num_listfiles
             if isempty(uniqCPind) || ~any(sum(uniqCPind==repmat(atoms,size(uniqCPind,1),1),2)==2) %add if is new one
                 uniqCPind(end+1,:) = atoms;%#ok
                 
-                uniqCP_Hatom_ind(end+1) = atoms(find([mol.labels{atoms}]=='H',1));
+                ii=find([mol.labels{atoms}]=='H',1);
+                curHatom = atoms(ii);
+                curBatom = atoms(3-ii);
+                uniqCP_Hatom_ind(end+1) = curHatom; %#ok<AGROW>
+                
+                %find A bond atom
+                thirdatom=[];
+                for jCP=1:size(mol.AIM.atoms,1)
+                    if mol.AIM.atoms(jCP,1)==curHatom && mol.AIM.atoms(jCP,2)~=curBatom
+                        thirdatom = mol.AIM.atoms(jCP,2);
+                        break;
+                    elseif mol.AIM.atoms(jCP,2)==curHatom && mol.AIM.atoms(jCP,1)~=curBatom
+                        thirdatom = mol.AIM.atoms(jCP,1);
+                        break
+                    end
+                end
+                if isempty(thirdatom)
+                    warning('CAN:irc',['third atom for CP(' int2str(curHatom) '...' int2str(curbatom) ') is not founf in ind_irc ' int2str(ind_irc) ]);
+                end
+                uniqCP_Aatom_ind(end+1) = thirdatom;%#ok
+                
                 uniqCP_irc_struct_ind(end+1) = ind_irc;%#ok
             end
         end
@@ -1026,6 +1189,10 @@ for l_ind=1:num_listfiles
     % sorting uniqCPind so that bonds with same H atom be neighbours
     [xx,sort_ind]=sort(uniqCP_Hatom_ind); 
     uniqCPind = uniqCPind(sort_ind,:);
+    uniqCP_Hatom_ind = uniqCP_Hatom_ind(sort_ind);
+    uniqCP_irc_struct_ind = uniqCP_irc_struct_ind(sort_ind);
+    uniqCP_Aatom_ind = uniqCP_Aatom_ind(sort_ind);
+    
     
     allHBind = []; %array with indexes of all found AH...B bonds
     for icp=1:size(uniqCPind,1)
@@ -1039,15 +1206,15 @@ for l_ind=1:num_listfiles
             disp(['Contact with atoms ' int2str(atoms(1)) ',' int2str(atoms(2)) ' skipped']);
             continue;
        elseif any(ms0.labels{atoms(1)}~='H') %second atom is H
-           HBatoms = [ms0.btB(find(ms0.btA==atoms(2))) ms0.btA(find(ms0.btB==atoms(2))) atoms(2) atoms(1)];%#ok
+           HBatoms = [uniqCP_Aatom_ind(icp) atoms(2) atoms(1)];
        elseif any(ms0.labels{atoms(2)}~='H') %first atom is H
-           HBatoms = [ms0.btB(find(ms0.btA==atoms(1))) ms0.btA(find(ms0.btB==atoms(1))) atoms(1) atoms(2)];%#ok
+           HBatoms = [uniqCP_Aatom_ind(icp) atoms(1) atoms(2)];
        else %both atoms are H
            disp(['dihydrogen bond with atoms ' int2str(atoms(1)) ',' int2str(atoms(2)) ' skipped']);
            continue;
        end
        if ~isempty(HBatoms) && numel(HBatoms)==3
-           if HBatoms(3) < HBatoms(1)
+           if HBatoms(3) < HBatoms(1) %sorting
                HBatoms = [HBatoms(3) HBatoms(2) HBatoms(1)];
            end
            allHBind(end+1,:) = HBatoms;%#ok
@@ -1055,6 +1222,7 @@ for l_ind=1:num_listfiles
            disp(['Two atoms contact found (' int2str(HBatoms) '), ircdb ind=' int2str(uniqCP_irc_struct_ind(icp)) ', skipped.' ]);
        end
     end %icp=1:size(uniqCPind,1)
+    
     uniqHBind = unique(allHBind,'rows'); %unique AH...B bonds
     if ~isempty(uniqHBind)
         iCHB = [strcmpcellar(ircdb(1).labels(uniqHBind(:,1)),'C') strcmpcellar(ircdb(1).labels(uniqHBind(:,3)),'C')]; %indexes of CHB bonds
@@ -1068,7 +1236,6 @@ for l_ind=1:num_listfiles
     [x,sort_ind]=sort([ircdb.irc]);
     min_x=min(x);
     max_x=max(x);
-    xlabel_str='IRC, a.m.u.^{1/2}*bohr';
     
   
 
@@ -1083,34 +1250,34 @@ for l_ind=1:num_listfiles
         txt = ['Dipole moment, Debay' ];%#ok
         data(1,col)={txt};   data(2:numel(ircdb)+1,col) = num2cell(y); col=col+1;
 
-        cla
-        pointsign='.-';
-        color='green';
-        y(y==Inf)=NaN;
-        h_plot = irc_plot( a_tmp, x,y,1);    
-        cur_axis = PlLim.correctlimit(fig_desc,[min_x max_x min(y) max(y)]);
-        my_axis(cur_axis,fig_desc,cutoffs);
-
-
-        grid off
-        set(a_tmp,'Box','on','XMinorTick','on','YMinorTick','on');
-        xlabel(a_tmp,xlabel_str);
-        ylabel(a_tmp,'Dipole moment, D');
-        print(f_tmp,'-dpsc2', '-append', '-r300', psfile);
+        if fl_plotpics
+            cla%reset(gca)
+            y(y==Inf)=NaN;
+            h_plot = irc_plot( a_tmp, x(points2plot),y(points2plot),1);    
+            params={};
+            params.flags=flags;
+            params.limits = PlLim.correctlimit(fig_desc,[min_x max_x min(y) max(y)]);
+            my_axis(params,fig_desc,cutoffs);
+            fig_name = [complextype '_' fig_desc '_' cur_method];
+            set(gcf,'Name',fig_name,'FileName',fig_name);
+            orient landscape
+            export_fig([common_out_dir filesep fig_name],'-eps','-pdf','-transparent', '-r300');
+%        print(f_tmp,'-dpsc2', '-append', '-r300', psfile);
+        end
     end
             
   
 %------------------------Distancies, angles, charges figure-----------------------------------------------  
     
-    if ~isempty(uniqHBind)
+    if fl_plotpics && ~isempty(uniqHBind)
 
         AHB_ind=zeros(0,3); %non CHB bonds
         CHB_ind=zeros(0,3);
         for i=1:size(uniqHBind,1)
             if ~isempty(uniqHBind) && (ircdb(1).labels{uniqHBind(i,1)}=='C' || ircdb(1).labels{uniqHBind(i,3)}=='C')
-                CHB_ind(end+1,:)=uniqHBind(i,:);
+                CHB_ind(end+1,:)=uniqHBind(i,:); %#ok<AGROW>
             else
-                AHB_ind(end+1,:)=uniqHBind(i,:);
+                AHB_ind(end+1,:)=uniqHBind(i,:); %#ok<AGROW>
             end
         end
 
@@ -1126,230 +1293,254 @@ for icycle=1:2 %2 loops - one for AH...B and one for CH...B bonds
         %---------------------------- A...B --------------------------------
         uniqAB=unique([HB_ind(:,1) HB_ind(:,3)],'rows');
         min_y=NaN; max_y=NaN;
-        buf={};buf.h_plots=[];buf.legs={};buf.xpos=[];buf.ypos=[];
-        cla
+        buf={};buf.h_plots=[];buf.legs={};buf.xpos=[];buf.ypos=[];buf.ht=[];
+        cla%reset(gca)
         hold on
         for iHB=1:size(uniqAB,1) 
             row = uniqAB(iHB,:);
             y=repmat(NaN,size(x));
             for iirc=1:numel(sort_ind) % over IRC points
-                y(iirc) = adist(ircdb(sort_ind(iirc)), row(1), row(2));%#ok
+                y(iirc) = adist(ircdb(sort_ind(iirc)), row(1), row(2));
             end
 %            leg=[atomlabel(ircdb(1),row(1)) ',' atomlabel(ircdb(1),row(2))];%#ok
-            leg=[molpind{row(1)} '...' molpind{row(2)}];%#ok
+            leg=[molpind{row(1)} '...' molpind{row(2)}];
             txt = ['A...B (' leg '), A' ];
             data(1,col)={txt};   data(2:numel(ircdb)+1,col) = num2cell(y); col=col+1;
             
-            pointsign='.-';
-            color=pcolor{mod(iHB-1,numel(pcolor))+1};
             if iHB==1
-                buf.h_plots(end+1)=irc_plot( a_tmp, x,y,1);
+                buf.h_plots(end+1)=irc_plot( a_tmp, x(points2plot),y(points2plot),1);
             else
-                buf.h_plots(end+1)=irc_plot( a_tmp, x,y);    
+                buf.h_plots(end+1)=irc_plot( a_tmp, x(points2plot),y(points2plot));    
             end
             buf.legs{end+1}=leg;%#ok
-%            buf.xpos(end+1) = x(10); %min(x)+0.05*(max(x)-min(x));
-%            buf.ypos(end+1) = y(10)+0.05*(max(y)-min(y));
-            text(x(10),y(10)+0.05*(max(y)-min(y)),leg);
             min_y = min([min_y min(y)]);
             max_y = max([max_y max(y)]);
+            if flags.develmode || size(uniqAB,1)>1
+                buf.ht(end+1) = text(x(10),min(max_y,y(10)+0.05*(max_y-min_y)),leg,'FontSize',label_fontsize);
+            end
         end
-        if icycle==1, fig_desc='dAB';, else fig_desc='dAB_CHB';, end
-        cur_axis = PlLim.correctlimit(fig_desc,[min_x max_x min_y max_y]);
-        my_axis(cur_axis,fig_desc,cutoffs);
-        grid off
-        set(a_tmp,'Box','on','XMinorTick','on','YMinorTick','on');
-        xlabel(a_tmp,xlabel_str);
-        ylabel(a_tmp,'dAB, A');
+        if icycle==1, fig_desc='dAB'; else fig_desc='dAB_CHB'; end
+        params={};
+        params.flags=flags;
+        params.limits = PlLim.correctlimit(fig_desc,[min_x max_x min_y max_y]);
+        my_axis(params,fig_desc,cutoffs,l_ind);
+        movetexts(buf);
+        
         if isfield(flags,'develmode') && flags.develmode
             legend(buf.h_plots, buf.legs, 'FontSize',7, 'Location','Best');
         end
-        print(f_tmp,'-dpsc2', '-append', '-r300', psfile);
+
+        fig_name = [complextype '_' fig_desc '_' cur_method];
+        set(gcf,'Name',fig_name,'FileName',fig_name);
+        orient landscape
+        export_fig([common_out_dir filesep fig_name],'-eps','-pdf','-transparent', '-r300');
+%        print(f_tmp,'-dpsc2', '-append', '-r300', psfile);
 
         %---------------------------- A...H, H...B ------------------------
         uniqAH=unique([HB_ind(:,1:2); HB_ind(:,2:3)],'rows');
+        numofCHbonds = numel(strcmpcellar(ircdb(1).labels(uniqAH),'C')); %hack
+        
         min_y=NaN; max_y=NaN;
-        buf={};buf.h_plots=[];buf.legs={};
-        cla
+        buf={};buf.h_plots=[];buf.legs={};buf.ht=[];
+        cla%reset(gca)
         hold on
         for iHB=1:size(uniqAH,1) 
             row = uniqAH(iHB,:);
+            if ircdb(1).labels{row(1)}=='C' || ircdb(1).labels{row(2)}=='C' %skipping CH bonds plotting
+                continue
+            end
+            
             y=repmat(NaN,size(x));
             for iirc=1:numel(sort_ind) % over IRC points
-                y(iirc) = adist(ircdb(sort_ind(iirc)), row(1), row(2));%#ok
+                y(iirc) = adist(ircdb(sort_ind(iirc)), row(1), row(2));
             end
 %            leg=[atomlabel(ircdb(1),row(1)) ',' atomlabel(ircdb(1),row(2))];%#ok
             if ircdb(1).labels{row(1)}=='H'
-                leg=[molpind{row(2)}  molpind{row(1)}];%#ok
+                leg=[molpind{row(2)} '...' molpind{row(1)}];
             else
-                leg=[molpind{row(1)}  molpind{row(2)}];%#ok
+                leg=[molpind{row(1)} '...' molpind{row(2)}];
             end
             txt = ['A...H (' leg '), A' ];
             data(1,col)={txt};   data(2:numel(ircdb)+1,col) = num2cell(y); col=col+1;
             
-            pointsign='.-';
-            color=pcolor{mod(iHB-1,numel(pcolor))+1};
             if iHB==1
-                buf.h_plots(end+1)=irc_plot( a_tmp, x,y,1);    
+                buf.h_plots(end+1)=irc_plot( a_tmp, x(points2plot),y(points2plot),1);    
             else
-                buf.h_plots(end+1)=irc_plot( a_tmp, x,y);    
+                buf.h_plots(end+1)=irc_plot( a_tmp, x(points2plot),y(points2plot));    
             end
             buf.legs{end+1}=leg;%#ok
-            text(x(10),y(10)+0.05*(max(y)-min(y)),leg);
             min_y = min([min_y min(y)]);
             max_y = max([max_y max(y)]);
+            if flags.develmode || size(uniqAH,1)-numofCHbonds>1
+                buf.ht(end+1) = text(x(10),min(max_y,y(10)+0.05*(max_y-min_y)),leg,'FontSize',label_fontsize);
+            end
         end
-        if icycle==1, fig_desc='dHB';, else fig_desc='dHB_CHB';, end
-        cur_axis = PlLim.correctlimit(fig_desc,[min_x max_x min_y max_y]);
-        my_axis(cur_axis,fig_desc,cutoffs);
-        grid off
-        set(a_tmp,'Box','on','XMinorTick','on','YMinorTick','on');
-        xlabel(a_tmp,xlabel_str);
-        ylabel(a_tmp,'dAH/HB, A');
+        if icycle==1, fig_desc='dHB'; else fig_desc='dHB_CHB'; end
+        params={};
+        params.flags=flags;
+        params.limits = PlLim.correctlimit(fig_desc,[min_x max_x min_y max_y]);
+        my_axis(params,fig_desc,cutoffs,l_ind);
+        movetexts(buf);
         if isfield(flags,'develmode') && flags.develmode
             legend(buf.h_plots, buf.legs, 'FontSize',7, 'Location','Best');
         end
-        print(f_tmp,'-dpsc2', '-append', '-r300', psfile);
+        
+        fig_name = [complextype '_' fig_desc '_' cur_method];
+        set(gcf,'Name',fig_name,'FileName',fig_name);
+        orient landscape
+        export_fig([common_out_dir filesep fig_name],'-eps','-pdf','-transparent', '-r300');
+%        print(f_tmp,'-dpsc2', '-append', '-r300', psfile);
 
         %---------------------------- A-H-B -------------------------------
         min_y=NaN; max_y=NaN;
-        buf={};buf.h_plots=[];buf.legs={};
-        cla
+        buf={};buf.h_plots=[];buf.legs={};buf.ht=[];
+        cla%reset(gca)
         hold on
         for iHB=1:size(HB_ind,1) %over all H-bonds
             row = HB_ind(iHB,:);
+%            if row(1)==row(3), continue, end
+            
             y=repmat(NaN,size(x));
             for iirc=1:numel(sort_ind) % over IRC points
-                y(iirc) = valang(ircdb(sort_ind(iirc)), row(1), row(2), row(3));%#ok
+                y(iirc) = valang(ircdb(sort_ind(iirc)), row(1), row(2), row(3));
             end
 %            leg=[atomlabel(ircdb(1),row(1)) ',' atomlabel(ircdb(1),row(2))...
 %                    ',' atomlabel(ircdb(1),row(3))];%#ok
-            leg=[molpind{row(1)} '' molpind{row(2)} '' molpind{row(3)}];%#ok
+            leg=[molpind{row(1)} '' molpind{row(2)} '...' molpind{row(3)}];
             txt = ['A-H-B (' leg '), °' ];
             data(1,col)={txt};   data(2:numel(ircdb)+1,col) = num2cell(y); col=col+1;
             
-            pointsign='.-';
-            color=pcolor{mod(iHB-1,numel(pcolor))+1};
             if iHB==1
-                buf.h_plots(end+1)=irc_plot( a_tmp, x,y,1);    
+                buf.h_plots(end+1)=irc_plot( a_tmp, x(points2plot),y(points2plot),1);    
             else
-                buf.h_plots(end+1)=irc_plot( a_tmp, x,y);    
+                buf.h_plots(end+1)=irc_plot( a_tmp, x(points2plot),y(points2plot));    
             end
             buf.legs{end+1}=leg;%#ok
-            text(x(10),y(10)+0.05*(max(y)-min(y)),leg);
             min_y = min([min_y min(y)]);
             max_y = max([max_y max(y)]);
-        end
-        if icycle==1, fig_desc='aAHB';, else fig_desc='aAHB_CHB';, end
-        cur_axis = PlLim.correctlimit(fig_desc,[min_x max_x min_y max_y]);
-        my_axis(cur_axis,fig_desc,cutoffs);
-        grid off
-        set(a_tmp,'Box','on','XMinorTick','on','YMinorTick','on');
-        xlabel(a_tmp,xlabel_str);
-        ylabel(a_tmp,'\angle AH…B, °');
+            if flags.develmode || size(HB_ind,1)>1
+                buf.ht(end+1) = text(x(10),min(max_y,y(10)+0.05*(max_y-min_y)),leg,'FontSize',label_fontsize);
+            end
+       end
+        if icycle==1, fig_desc='aAHB'; else fig_desc='aAHB_CHB'; end
+        params={};
+        params.flags=flags;
+        params.limits = PlLim.correctlimit(fig_desc,[min_x max_x min_y max_y]);
+        my_axis(params,fig_desc,cutoffs,l_ind);
+        movetexts(buf);
         if isfield(flags,'develmode') && flags.develmode
             legend(buf.h_plots, buf.legs, 'FontSize',7, 'Location','Best');
         end
-        print(f_tmp,'-dpsc2', '-append', '-r300', psfile);
+        
+        fig_name = [complextype '_' fig_desc '_' cur_method];
+        set(gcf,'Name',fig_name,'FileName',fig_name);
+        orient landscape
+        export_fig([common_out_dir filesep fig_name],'-eps','-pdf','-transparent', '-r300');
+%        print(f_tmp,'-dpsc2', '-append', '-r300', psfile);
 
-end
+end %for icycle=1:2
 
-if fl_plot_milliken        
-        %---------------------------- charges on atoms - hydrogens
+        %---------------------------- Milliken charges on atoms - all
+        uniqatoms=unique(uniqHBind);
+%        uniqatoms_H = uniqatoms(strcmpcellar(ircdb(1).labels(uniqatoms),'H'));
+        min_y=NaN; max_y=NaN;
+        buf={};buf.h_plots=[];buf.legs={};buf.ht=[];
+        cla%reset(gca)
+        hold on
+        for iHB=1:size(uniqatoms,1) 
+            row = uniqatoms(iHB,:);
+            y=repmat(NaN,size(x));
+            for iirc=1:numel(sort_ind) % over IRC points
+                if isfield(ircdb(sort_ind(iirc)),'mcharge') && ~isempty(ircdb(sort_ind(iirc)).mcharge) && ~isempty( ircdb(sort_ind(iirc)).mcharge(row(1)) )
+                    y(iirc) = ircdb(sort_ind(iirc)).mcharge(row(1));%#ok
+                end
+            end
+%            leg=[atomlabel(ircdb(1),row(1))];%#ok
+            leg=[molpind{row(1)}];
+            txt = ['Mulliken q ' leg ', e' ];
+            data(1,col)={txt};   data(2:numel(ircdb)+1,col) = num2cell(y); col=col+1;
+            
+            if iHB==1
+                buf.h_plots(end+1)=irc_plot( a_tmp, x(points2plot),y(points2plot),1);    
+            else
+                buf.h_plots(end+1)=irc_plot( a_tmp, x(points2plot),y(points2plot));    
+            end
+            buf.legs{end+1}=leg;%#ok
+%            ht = text(x(10),max(y,y(10)+0.05*(max(y)-min(y))),leg,'FontSize',label_fontsize);
+            min_y = min([min_y min(y)]);
+            max_y = max([max_y max(y)]);
+            buf.ht(end+1)= text(x(10),min(max_y,y(10)+0.05*(max_y-min_y)),leg,'FontSize',label_fontsize);
+        end
+        fig_desc = 'Milliken';
+        params={};
+        params.flags=flags;
+        params.limits = PlLim.correctlimit(fig_desc,[min_x max_x min_y max_y]);
+        my_axis(params,fig_desc,cutoffs,l_ind);
+        movetexts(buf);
+        if isfield(flags,'develmode') && flags.develmode
+            legend(buf.h_plots, buf.legs, 'FontSize',7, 'Location','Best');
+        end
+
+        fig_name = [complextype '_' fig_desc '_' cur_method];
+        set(gcf,'Name',fig_name,'FileName',fig_name);
+        orient landscape
+        export_fig([common_out_dir filesep fig_name],'-eps','-pdf','-transparent', '-r300');
+%        print(f_tmp,'-dpsc2', '-append', '-r300', psfile);
+
+        %---------------------------- NBO charges on atoms - hydrogens
+if 0        
         uniqatoms=unique(uniqHBind);
         uniqatoms_H = uniqatoms(strcmpcellar(ircdb(1).labels(uniqatoms),'H'));
         min_y=NaN; max_y=NaN;
-        buf={};buf.h_plots=[];buf.legs={};
-        cla
+        buf={};buf.h_plots=[];buf.legs={};buf.ht=[];
+        cla%reset(gca)
         hold on
         for iHB=1:size(uniqatoms_H,1) 
             row = uniqatoms_H(iHB,:);
             y=repmat(NaN,size(x));
             for iirc=1:numel(sort_ind) % over IRC points
-                if isfield(ircdb(sort_ind(iirc)),'mcharge') && ~isempty(ircdb(sort_ind(iirc)).mcharge) && ~isempty( ircdb(sort_ind(iirc)).mcharge(row(1)) )
-                    y(iirc) = ircdb(sort_ind(iirc)).mcharge(row(1));%#ok
+                if isfield(ircdb(sort_ind(iirc)),'nbocharge') && ~isempty(ircdb(sort_ind(iirc)).nbocharge) && ~isempty( ircdb(sort_ind(iirc)).nbocharge(row(1)) )
+                    y(iirc) = ircdb(sort_ind(iirc)).nbocharge(row(1));%#ok
                 end
             end
 %            leg=[atomlabel(ircdb(1),row(1))];%#ok
             leg=[molpind{row(1)}];
-            txt = ['Mulliken q ' leg ', a.u.' ];
+            txt = ['NBO q ' leg ', e' ];
             data(1,col)={txt};   data(2:numel(ircdb)+1,col) = num2cell(y); col=col+1;
             
-            pointsign='.-';
-            color=pcolor{mod(iHB-1,numel(pcolor))+1};
             if iHB==1
-                buf.h_plots(end+1)=irc_plot( a_tmp, x,y,1);    
+                buf.h_plots(end+1)=irc_plot( a_tmp, x(points2plot),y(points2plot),1);    
             else
-                buf.h_plots(end+1)=irc_plot( a_tmp, x,y);    
+                buf.h_plots(end+1)=irc_plot( a_tmp, x(points2plot),y(points2plot));    
             end
             buf.legs{end+1}=leg;%#ok
-            text(x(10),y(10)+0.05*(max(y)-min(y)),leg);
+%            text(x(10),max(y,y(10)+0.05*(max(y)-min(y))),leg,'FontSize',label_fontsize);
             min_y = min([min_y min(y)]);
             max_y = max([max_y max(y)]);
+            buf.ht(end+1) = text(x(10),min(max_y,y(10)+0.05*(max_y-min_y)),leg,'FontSize',label_fontsize);
         end
-        fig_desc = 'MillikenH';
-        cur_axis = PlLim.correctlimit(fig_desc,[min_x max_x min_y max_y]);
-        my_axis(cur_axis,fig_desc,cutoffs);
-        grid off
-        set(a_tmp,'Box','on','XMinorTick','on','YMinorTick','on');
-        xlabel(a_tmp,xlabel_str);
-        ylabel(a_tmp,'Mulliken atomic charge, e');
+        fig_desc = 'NBO_q';
+        params={};
+        params.flags=flags;
+        params.limits = PlLim.correctlimit(fig_desc,[min_x max_x min_y max_y]);
+        my_axis(params,fig_desc,cutoffs,l_ind);
+        movetexts(buf);
         if isfield(flags,'develmode') && flags.develmode
             legend(buf.h_plots, buf.legs, 'FontSize',7, 'Location','Best');
         end
-        print(f_tmp,'-dpsc2', '-append', '-r300', psfile);
 
-        %---------------------------- charges on atoms - non-hydrogens
-        uniqatoms=unique(uniqHBind);
-        uniqatoms_notH = setdiff(uniqatoms,uniqatoms_H);
-        min_y=NaN; max_y=NaN;
-        buf={};buf.h_plots=[];buf.legs={};
-        cla
-        hold on
-        for iHB=1:size(uniqatoms_notH,1) 
-            row = uniqatoms_notH(iHB,:);
-            y=repmat(NaN,size(x));
-            for iirc=1:numel(sort_ind) % over IRC points
-                if isfield(ircdb(sort_ind(iirc)),'mcharge') && ~isempty(ircdb(sort_ind(iirc)).mcharge) && ~isempty( ircdb(sort_ind(iirc)).mcharge(row(1)) )
-                    y(iirc) = ircdb(sort_ind(iirc)).mcharge(row(1));%#ok
-                end
-            end
-%            leg=[atomlabel(ircdb(1),row(1))];%#ok
-            leg=[molpind{row(1)}];
-            if isempty(leg), leg='', end
-            txt = ['Mulliken q ' leg ', a.u.' ];
-            data(1,col)={txt};   data(2:numel(ircdb)+1,col) = num2cell(y); col=col+1;
-            
-            pointsign='.-';
-            color=pcolor{mod(iHB-1,numel(pcolor))+1};
-            if iHB==1
-                buf.h_plots(end+1)=irc_plot( a_tmp, x,y,1);    
-            else
-                buf.h_plots(end+1)=irc_plot( a_tmp, x,y);    
-            end
-            buf.legs{end+1}=leg;%#ok
-            text(x(10),y(10)+0.05*(max(y)-min(y)),leg);
-            min_y = min([min_y min(y)]);
-            max_y = max([max_y max(y)]);
-        end
-        fig_desc = 'Milliken';
-        cur_axis = PlLim.correctlimit(fig_desc,[min_x max_x min_y max_y]);
-        my_axis(cur_axis,fig_desc,cutoffs);
-        grid off
-        set(a_tmp,'Box','on','XMinorTick','on','YMinorTick','on');
-        xlabel(a_tmp,xlabel_str);
-        ylabel(a_tmp,'Mulliken atomic charge, e');
-        if isfield(flags,'develmode') && flags.develmode
-            legend(buf.h_plots, buf.legs, 'FontSize',7, 'Location','Best');
-        end
-        print(f_tmp,'-dpsc2', '-append', '-r300', psfile);
-end %fl_plot_milliken
-            
+        fig_name = [complextype '_' fig_desc '_' cur_method];
+        set(gcf,'Name',fig_name,'FileName',fig_name);
+        orient landscape
+        export_fig([common_out_dir filesep fig_name],'-eps','-pdf','-transparent', '-r300');
+%        print(f_tmp,'-dpsc2', '-append', '-r300', psfile);
+end
+
         %---------------------------- additional distances
         if exist('bondlist','var')
             min_y=NaN; max_y=NaN;
-            buf={};buf.h_plots=[];buf.legs={};
-            cla
+            buf={};buf.h_plots=[];buf.legs={};buf.ht=[];
+            cla%reset(gca)
             hold on
             for iHB=1:size(bondlist,1) %over all additional distances
                 row = bondlist(iHB,:);
@@ -1362,36 +1553,40 @@ end %fl_plot_milliken
                 txt = ['H...H (' leg '), A' ];
                 data(1,col)={txt};   data(2:numel(ircdb)+1,col) = num2cell(y); col=col+1;
 
-                pointsign='.-';
-                color=pcolor{mod(iHB-1,numel(pcolor))+1};
                 if iHB==1
-                    buf.h_plots(end+1)=irc_plot( a_tmp, x,y,1);    
+                    buf.h_plots(end+1)=irc_plot( a_tmp, x(points2plot),y(points2plot),1);    
                 else
-                    buf.h_plots(end+1)=irc_plot( a_tmp, x,y);    
+                    buf.h_plots(end+1)=irc_plot( a_tmp, x(points2plot),y(points2plot));
                 end
                 buf.legs{end+1}=leg;%#ok
-                text(x(10),y(10)+0.05*(max(y)-min(y)),leg);
                 min_y = min([min_y min(y)]);
                 max_y = max([max_y max(y)]);
+                if flags.develmode
+                    buf.ht(end+1) = text(x(10),min(max_y,y(10)+0.05*(max_y-min_y)),leg,'FontSize',label_fontsize);
+                end
             end
             fig_desc = 'dHH';
-            cur_axis = PlLim.correctlimit(fig_desc,[min_x max_x min_y max_y]);
-            my_axis(cur_axis,fig_desc,cutoffs);
-            grid off
-            set(a_tmp,'Box','on','XMinorTick','on','YMinorTick','on');
-            xlabel(a_tmp,xlabel_str);
-            ylabel(a_tmp,'R(H-H), A');
+            params={};
+            params.flags=flags;
+            params.limits = PlLim.correctlimit(fig_desc,[min_x max_x min_y max_y]);
+            my_axis(params,fig_desc,cutoffs,l_ind);
+            movetexts(buf);
             if isfield(flags,'develmode') && flags.develmode
                 legend(buf.h_plots, buf.legs, 'FontSize',7, 'Location','Best');
             end
-            print(f_tmp,'-dpsc2', '-append', '-r300', psfile);
+            
+            fig_name = [complextype '_' fig_desc '_' cur_method];
+            set(gcf,'Name',fig_name,'FileName',fig_name);
+            orient landscape
+            export_fig([common_out_dir filesep fig_name],'-eps','-pdf','-transparent', '-r300');
+%            print(f_tmp,'-dpsc2', '-append', '-r300', psfile);
         end
 
         %---------------------------- additional angles
         if exist('anglist','var')
             min_y=NaN; max_y=NaN;
-            buf={};buf.h_plots=[];buf.legs={};
-            cla
+            buf={};buf.h_plots=[];buf.legs={};buf.ht=[];
+            cla%reset(gca)
             hold on
             for iang=1:size(anglist,1) %over all additional angles
                 row = anglist(iang,:);
@@ -1400,33 +1595,40 @@ end %fl_plot_milliken
                     y(iirc) = valang(ircdb(sort_ind(iirc)), row(1), row(2), row(3));%#ok
                 end
 %                leg=[atomlabel(ircdb(1),row(1)) ',' atomlabel(ircdb(1),row(2)) ',' atomlabel(ircdb(1),row(3))];%#ok
-                leg=[molpind{row(1)} '-' molpind{row(2)} '-' molpind{row(3)}];
-                txt = ['glyc angle (' leg '), °' ];
+                if flags.develmode
+                    leg=[molpind{row(1)} '-' molpind{row(2)} '-' molpind{row(3)}];
+                else
+                    leg=['{\alpha}_' int2str(iang) ];
+                end
+                txt = ['alpha (' leg '), degree' ];
                 data(1,col)={txt};   data(2:numel(ircdb)+1,col) = num2cell(y); col=col+1;
 
-                pointsign='.-';
-                color=pcolor{mod(iang-1,numel(pcolor))+1};
                 if iang==1
-                    buf.h_plots(end+1)=irc_plot( a_tmp, x,y,1);    
+                    buf.h_plots(end+1)=irc_plot( a_tmp, x(points2plot),y(points2plot),1);
                 else
-                    buf.h_plots(end+1)=irc_plot( a_tmp, x,y);    
+                    buf.h_plots(end+1)=irc_plot( a_tmp, x(points2plot),y(points2plot));
                 end
                 buf.legs{end+1}=leg;%#ok
-                text(x(10),y(10)+0.05*(max(y)-min(y)),leg);
+%                text(x(10),max(y,y(10)+0.05*(max(y)-min(y))),leg,'FontSize',label_fontsize);
                 min_y = min([min_y min(y)]);
                 max_y = max([max_y max(y)]);
+                buf.ht(end+1)= text(x(10),min(max_y,y(10)+0.05*(max_y-min_y)),leg,'FontSize',label_fontsize);
             end
             fig_desc = 'glycang';
-            cur_axis = PlLim.correctlimit(fig_desc,[min_x max_x min_y max_y]);
-            my_axis(cur_axis,fig_desc,cutoffs);
-            grid off
-            set(a_tmp,'Box','on','XMinorTick','on','YMinorTick','on');
-            xlabel(a_tmp,xlabel_str);
-            ylabel(a_tmp,'Glycosidic angle, °');
+            params={};
+            params.flags=flags;
+            params.limits = PlLim.correctlimit(fig_desc,[min_x max_x min_y max_y]);
+            my_axis(params,fig_desc,cutoffs,l_ind);
+            movetexts(buf);
             if isfield(flags,'develmode') && flags.develmode
                 legend(buf.h_plots, buf.legs, 'FontSize',7, 'Location','Best');
             end
-            print(f_tmp,'-dpsc2', '-append', '-r300', psfile);
+            
+            fig_name = [complextype '_' fig_desc '_' cur_method];
+            set(gcf,'Name',fig_name,'FileName',fig_name);
+            orient landscape
+            export_fig([common_out_dir filesep fig_name],'-eps','-pdf','-transparent', '-r300');
+%            print(f_tmp,'-dpsc2', '-append', '-r300', psfile);
         end
 
     end %if ~isempty(uniqHBind)
@@ -1434,18 +1636,18 @@ end %fl_plot_milliken
     
     
 %------------------------AIM figures--------------------------  
-    if exist('aimbondlist','var')
-        uniqCPind = [uniqCPind; aimbondlist]; % #ok
-    end
     if ~isempty(uniqCPind)
+        if exist('aimbondlist','var')
+            uniqCPind = [uniqCPind; aimbondlist]; %#ok<AGROW> % #ok
+        end
 
-        AHB_CPind=zeros(0,2); %non CHB bond CP
-        CHB_CPind=zeros(0,2);
+        AHB_CPind=zeros(0,2); %non CHB bond CPs
+        CHB_CPind=zeros(0,2); %CHB bond CPs
         for i=1:size(uniqCPind,1)
-            if ~isempty(CHBbondHind) && sum(uniqCPind(i,:)==CHBbondHind)
-                CHB_CPind(end+1,:)=uniqCPind(i,:);
+            if ~isempty(CHBbondHind) && sum(uniqCPind(i,:)==CHBbondHind) %errorneous !!! H atom may take place in different H-bonds
+                CHB_CPind(end+1,:)=uniqCPind(i,:); %#ok<AGROW>
             else
-                AHB_CPind(end+1,:)=uniqCPind(i,:);
+                AHB_CPind(end+1,:)=uniqCPind(i,:); %#ok<AGROW>
             end
         end
 
@@ -1453,20 +1655,22 @@ end %fl_plot_milliken
         keypoints.irc=repmat(NaN,1,9); %IRC value of the point
         keypoints.inddb=repmat(NaN,1,9); %structure index in ircdb
         keypoints.desc={}; %key point description
+        keypoints.atoms(9)={[]};
         
-        keypoints.inddb(1)=sort_ind(find(x==min(x))); 
+        keypoints.inddb(1)=sort_ind(x==min(x)); 
         keypoints.irc(1)=min([ircdb.irc]); 
-        keypoints.desc{1}='IRC min';
+        keypoints.desc(1)=IRCdesc(1);
         
-        keypoints.irc(5)=0;
-        keypoints.inddb(5)=sort_ind(find(x==0,1));
-        keypoints.desc{5}='TS';
+        ind = find(x==0,1);
+        if ~isempty(ind)
+            keypoints.irc(5)=0;
+            keypoints.inddb(5)=sort_ind(ind);
+            keypoints.desc(5)=IRCdesc(2);
+        end
         
         keypoints.irc(9)=max([ircdb.irc]);
-        keypoints.inddb(9)=sort_ind(find(x==max(x)));
-        keypoints.desc{9}='IRC max';
-%        disp(['P1 min : irc=' num2str(keypoints.irc(1),3) ])
-%        disp(['P9 max : irc=' num2str(keypoints.irc(9),3) ])
+        keypoints.inddb(9)=sort_ind(x==max(x));
+        keypoints.desc(9)=IRCdesc(3);
 
 for icycle=1:2 %2 loops - one for AH...B and one for CH...B bonds
 
@@ -1478,8 +1682,8 @@ for icycle=1:2 %2 loops - one for AH...B and one for CH...B bonds
         if isempty(CPs), continue, end
 %------------------------rho --------------------------  
         min_y=NaN; max_y=NaN;
-        buf={};buf.h_plots=[];buf.legs={};buf.x=[];buf.y=[];buf.title={};
-        cla
+        buf={};buf.h_plots=[];buf.legs={};buf.x=[];buf.y=[];buf.title={};buf.ht=[];buf.atoms=[];
+        cla%reset(gca)
         hold on
         for iCP=1:size(CPs,1) % over all H-bond CPs
             row = CPs(iCP,:);
@@ -1494,10 +1698,11 @@ for icycle=1:2 %2 loops - one for AH...B and one for CH...B bonds
                 end
             end
 %            leg=[atomlabel(ircdb(1),uniqCPind(iCP,1)) ',' atomlabel(ircdb(1),uniqCPind(iCP,2))];%#ok
+            if icycle==2, dlm='...'; else dlm=''; end
             if ircdb(1).labels{row(1)}=='H'
-                leg=[molpind{row(2)} '' molpind{row(1)}];%#ok
+                leg=[molpind{row(2)} dlm molpind{row(1)}];%#ok
             else
-                leg=[molpind{row(1)} '' molpind{row(2)}];%#ok
+                leg=[molpind{row(1)} dlm molpind{row(2)}];%#ok
             end
             txt = ['\rho,a.u. (' leg ')'];
             data(1,col)={txt};   data(2:numel(ircdb)+1,col) = num2cell(y); col=col+1;
@@ -1505,51 +1710,61 @@ for icycle=1:2 %2 loops - one for AH...B and one for CH...B bonds
             buf.x(end+1,:) = x;
             buf.y(end+1,:) = y;
             buf.title(end+1) = {txt};
+            buf.atoms(end+1,:) = row;
             
-            pointsign='.-';
-            color=pcolor{mod(iCP-1,numel(pcolor))+1};
             if iCP==1
-                buf.h_plots(end+1)=irc_plot( a_tmp, x,y,1);    
+                buf.h_plots(end+1)=irc_plot( a_tmp, x(points2plot),y(points2plot),1);
             else
-                buf.h_plots(end+1)=irc_plot( a_tmp, x,y);    
+                buf.h_plots(end+1)=irc_plot( a_tmp, x(points2plot),y(points2plot));
             end
             buf.legs{end+1}=leg;%#ok
-            text(x(10),y(10)+0.05*(max(y)-min(y)),leg);
             min_y = min([min_y min(y)]);
             max_y = max([max_y max(y)]);
+            if flags.develmode || size(CPs,1)>1
+                buf.ht(end+1) = text(x(10),min(max_y,y(10)+0.05*(max_y-min_y)),leg,'FontSize',label_fontsize);
+            end
         end
-        if icycle==1, fig_desc='rho';, else fig_desc='rhoCHB';, end
-        cur_axis = PlLim.correctlimit(fig_desc,[min_x max_x min_y max_y]);
-        my_axis(cur_axis,fig_desc,cutoffs);
-        grid off
-        set(a_tmp,'Box','on','XMinorTick','on','YMinorTick','on');
-        xlabel(a_tmp,xlabel_str);
-        ylabel(a_tmp,'\rho, a.u.');
+        if icycle==1, fig_desc='rho'; else fig_desc='rhoCHB'; end
+        params={};
+        params.flags=flags;
+        params.limits = PlLim.correctlimit(fig_desc,[min_x max_x min_y max_y]);
+        my_axis(params,fig_desc,cutoffs,l_ind);
+        movetexts(buf);
         if isfield(flags,'develmode') && flags.develmode
             legend(buf.h_plots, buf.legs, 'FontSize',7, 'Location','Best');
         end
-        print(f_tmp,'-dpsc2', '-append', '-r300', psfile);        
+        
+        fig_name = [complextype '_' fig_desc '_' cur_method];
+        set(gcf,'Name',fig_name,'FileName',fig_name);
+        orient landscape
+        export_fig([common_out_dir filesep fig_name],'-eps','-pdf','-transparent', '-r300');
+%        print(f_tmp,'-dpsc2', '-append', '-r300', psfile);        
         
 if icycle==1         
         if iCPcutoff(1) && iCPcutoff(2)
             [X0, i1] = findlinroot( buf.x(iCPcutoff(1),:), buf.y(iCPcutoff(1),:)-buf.y(iCPcutoff(2),:) ); %rho1-rho2 %buf.x is already sorted
+disp(['point3: irc=' num2str(X0,'%.3f') ', nearest irc=' num2str(buf.x(iCPcutoff(1),i1),'%.3f') ', rho1-rho2=' num2str(buf.y(iCPcutoff(1),i1)-buf.y(iCPcutoff(2),i1),'%.3f') ]);
             keypoints.irc(3) = X0;
             keypoints.inddb(3) = sort_ind(i1);
-            keypoints.desc{3}=['\rho(' buf.legs{iCPcutoff(1)} ')==\rho(' buf.legs{iCPcutoff(2)} ')'];
+            keypoints.atoms(3) = {[buf.atoms(iCPcutoff(1),:); buf.atoms(iCPcutoff(2),:)]};
+            
+            keypoints.desc{3}=['\rho_{' buf.legs{iCPcutoff(1)} '} = \rho_{' buf.legs{iCPcutoff(2)} '}'];
 %            disp(['P3 rho(' buf.legs{iCPcutoff(1)} ')==rho(' buf.legs{iCPcutoff(2)} '): irc=' num2str(keypoints.irc(3),3) ])
         end
         if iCPcutoff(3) && iCPcutoff(4)
             [X0, i1] = findlinroot( buf.x(iCPcutoff(3),:), buf.y(iCPcutoff(3),:)-buf.y(iCPcutoff(4),:) ); %rho1-rho2 %buf.x is already sorted
+disp(['point7: irc=' num2str(X0,'%.3f') ', nearest irc=' num2str(buf.x(iCPcutoff(3),i1),'%.3f') ', rho3-rho4=' num2str(buf.y(iCPcutoff(3),i1)-buf.y(iCPcutoff(4),i1),'%.3f') ]);
             keypoints.irc(7) = X0;
             keypoints.inddb(7)=sort_ind(i1);
-            keypoints.desc{7}=['\rho(' buf.legs{iCPcutoff(3)} ')==\rho(' buf.legs{iCPcutoff(4)} ')'];
+            keypoints.atoms(7) = {[buf.atoms(iCPcutoff(3),:); buf.atoms(iCPcutoff(4),:)]};
+            keypoints.desc{7}=['\rho_{' buf.legs{iCPcutoff(3)} '} = \rho_{' buf.legs{iCPcutoff(4)} '}'];
 %            disp(['P3 rho(' buf.legs{iCPcutoff(1)} ')==rho(' buf.legs{iCPcutoff(2)} '): irc=' num2str(keypoints.irc(3),3) ])
         end
 end %icycle       
 %------------------------ delta rho --------------------------  
         min_y=NaN; max_y=NaN;
-        buf={};buf.h_plots=[];buf.legs={};buf.x=[];buf.y=[];buf.title={};
-        cla
+        buf={};buf.h_plots=[];buf.legs={};buf.x=[];buf.y=[];buf.title={};buf.ht=[];
+        cla%reset(gca)
         hold on
         for iCP=1:size(CPs,1) % over all H-bond CPs
             row = CPs(iCP,:);
@@ -1564,10 +1779,11 @@ end %icycle
                 end
             end
 %            leg=[atomlabel(ircdb(1),uniqCPind(iCP,1)) ',' atomlabel(ircdb(1),uniqCPind(iCP,2))];%#ok
-            if ircdb(1).labels{uniqCPind(iCP,1)}=='H'
-                leg=[molpind{row(2)} '' molpind{row(1)}];%#ok
+            if icycle==2, dlm='...'; else dlm=''; end
+            if ircdb(1).labels{row(1)}=='H'
+                leg=[molpind{row(2)} dlm molpind{row(1)}];%#ok
             else
-                leg=[molpind{row(1)} '' molpind{row(2)}];%#ok
+                leg=[molpind{row(1)} dlm molpind{row(2)}];%#ok
             end
             txt = ['\Delta \rho,a.u. (' leg ')'];
             data(1,col)={txt};   data(2:numel(ircdb)+1,col) = num2cell(y); col=col+1;
@@ -1576,65 +1792,73 @@ end %icycle
             buf.y(end+1,:) = y;
             buf.title(end+1) = {txt};
             
-            pointsign='.-';
-            color=pcolor{mod(iCP-1,numel(pcolor))+1};
             if iCP==1
-                buf.h_plots(end+1)=irc_plot( a_tmp, x,y,1);    
+                buf.h_plots(end+1)=irc_plot( a_tmp, x(points2plot),y(points2plot),1);
             else
-                buf.h_plots(end+1)=irc_plot( a_tmp, x,y);    
+                buf.h_plots(end+1)=irc_plot( a_tmp, x(points2plot),y(points2plot));
             end
             buf.legs{end+1}=leg;%#ok
-            text(x(10),y(10)+0.05*(max(y)-min(y)),leg);
             min_y = min([min_y min(y)]);
             max_y = max([max_y max(y)]);
+            if flags.develmode || size(CPs,1)>1
+                buf.ht(end+1) = text(x(10),min(max_y,y(10)+0.05*(max_y-min_y)),leg,'FontSize',label_fontsize);
+            end
         end
-        if icycle==1, fig_desc='deltarho';, else fig_desc='deltarhoCHB';, end
-        cur_axis = PlLim.correctlimit(fig_desc,[min_x max_x min_y max_y]);
-        my_axis(cur_axis,fig_desc,cutoffs);
-        grid off
-        set(a_tmp,'Box','on','XMinorTick','on','YMinorTick','on');
-        xlabel(a_tmp,xlabel_str);
-        ylabel(a_tmp,'\Delta \rho, a.u.');
+        if icycle==1, fig_desc='deltarho'; else fig_desc='deltarhoCHB'; end
+        params={};
+        params.flags=flags;
+        params.limits = PlLim.correctlimit(fig_desc,[min_x max_x min_y max_y]);
+        my_axis(params,fig_desc,cutoffs,l_ind);
+        movetexts(buf);
         if isfield(flags,'develmode') && flags.develmode
             legend(buf.h_plots, buf.legs, 'FontSize',7, 'Location','Best');
         end
-        print(f_tmp,'-dpsc2', '-append', '-r300', psfile);        
+        
+        fig_name = [complextype '_' fig_desc '_' cur_method];
+        set(gcf,'Name',fig_name,'FileName',fig_name);
+        orient landscape
+        export_fig([common_out_dir filesep fig_name],'-eps','-pdf','-transparent', '-r300');
+%        print(f_tmp,'-dpsc2', '-append', '-r300', psfile);        
         
 if icycle==1         
         if iCPcutoff(1) 
             [X0, i1] = findlinroot( buf.x(iCPcutoff(1),:), buf.y(iCPcutoff(1),:) ); %deltarho %buf.x is already sorted
             keypoints.irc(2) = X0;
+disp(['point2: irc=' num2str(X0,'%.3f') ', nearest irc=' num2str(buf.x(iCPcutoff(1),i1),'%.3f') ', deltarho=' num2str(buf.y(iCPcutoff(1),i1),'%.3f') ]);
             keypoints.inddb(2)=sort_ind(i1);
-            keypoints.desc{2}=['\Delta\rho(' buf.legs{iCPcutoff(1)} ')==0'];
+            keypoints.desc{2}=['\Delta\rho_{' buf.legs{iCPcutoff(1)} '} = 0'];
 %            disp(['P2 deltarho(' buf.legs{iCPcutoff(1)} ')=0: irc=' num2str(keypoints.irc(2),3) ])
         end
         if iCPcutoff(2)
             [X0, i1] = findlinroot( buf.x(iCPcutoff(1),:), buf.y(iCPcutoff(2),:) ); %deltarho %buf.x is already sorted
             keypoints.irc(4) = X0;
+disp(['point4: irc=' num2str(X0,'%.3f') ', nearest irc=' num2str(buf.x(iCPcutoff(2),i1),'%.3f') ', deltarho=' num2str(buf.y(iCPcutoff(2),i1),'%.3f') ]);
             keypoints.inddb(4)=sort_ind(i1);
-            keypoints.desc{4}=['\Delta\rho(' buf.legs{iCPcutoff(2)} ')==0'];
+            keypoints.desc{4}=['\Delta\rho_{' buf.legs{iCPcutoff(2)} '} = 0'];
 %            disp(['P4 deltarho(' buf.legs{iCPcutoff(2)} ')=0: irc=' num2str(keypoints.irc(4),3) ])
         end
 
         if iCPcutoff(3) 
             [X0, i1] = findlinroot( buf.x(iCPcutoff(1),:), buf.y(iCPcutoff(3),:) ); %deltarho %buf.x is already sorted
             keypoints.irc(6) = X0;
+disp(['point6: irc=' num2str(X0,'%.3f') ', nearest irc=' num2str(buf.x(iCPcutoff(3),i1),'%.3f') ', deltarho=' num2str(buf.y(iCPcutoff(3),i1),'%.3f') ]);
             keypoints.inddb(6)=sort_ind(i1);
-            keypoints.desc{6}=['\Delta\rho(' buf.legs{iCPcutoff(3)} ')==0'];
+            keypoints.desc{6}=['\Delta\rho_{' buf.legs{iCPcutoff(3)} '} = 0'];
 %            disp(['P2 deltarho(' buf.legs{iCPcutoff(1)} ')=0: irc=' num2str(keypoints.irc(2),3) ])
         end
         if iCPcutoff(4)
             [X0, i1] = findlinroot( buf.x(iCPcutoff(1),:), buf.y(iCPcutoff(4),:) ); %deltarho %buf.x is already sorted
             keypoints.irc(8) = X0;
+disp(['point8: irc=' num2str(X0,'%.3f') ', nearest irc=' num2str(buf.x(iCPcutoff(4),i1),'%.3f') ', deltarho=' num2str(buf.y(iCPcutoff(4),i1),'%.3f') ]);
             keypoints.inddb(8)=sort_ind(i1);
-            keypoints.desc{8}=['\Delta\rho(' buf.legs{iCPcutoff(4)} ')==0'];
+            keypoints.desc{8}=['\Delta\rho_{' buf.legs{iCPcutoff(4)} '} = 0'];
 %            disp(['P4 deltarho(' buf.legs{iCPcutoff(2)} ')=0: irc=' num2str(keypoints.irc(4),3) ])
         end
 end %icycle
         %------------------------ ellipticity --------------------------  
         min_y=NaN; max_y=NaN;
-        buf={};buf.h_plots=[];buf.legs={};
-        cla
+        buf={};buf.h_plots=[];buf.legs={};buf.ht=[];
+        cla%reset(gca)
         hold on
         for iCP=1:size(CPs,1) % over all H-bond CPs
             row = CPs(iCP,:);
@@ -1649,46 +1873,51 @@ end %icycle
                 end
             end
 %            leg=[atomlabel(ircdb(1),uniqCPind(iCP,1)) ',' atomlabel(ircdb(1),uniqCPind(iCP,2))];%#ok
-            if ircdb(1).labels{uniqCPind(iCP,1)}=='H'
-                leg=[molpind{row(2)} '' molpind{row(1)}];%#ok
+            if icycle==2, dlm='...'; else dlm=''; end
+            if ircdb(1).labels{row(1)}=='H'
+                leg=[molpind{row(2)} dlm molpind{row(1)}];%#ok
             else
-                leg=[molpind{row(1)} '' molpind{row(2)}];%#ok
+                leg=[molpind{row(1)} dlm molpind{row(2)}];%#ok
             end
             txt = ['\epsilon (' leg ')'];
             data(1,col)={txt};   data(2:numel(ircdb)+1,col) = num2cell(y); col=col+1;
             
-            pointsign='.-';
-            color=pcolor{mod(iCP-1,numel(pcolor))+1};
             if iCP==1
-                buf.h_plots(end+1)=irc_plot( a_tmp, x,y,1);    
+                buf.h_plots(end+1)=irc_plot( a_tmp, x(points2plot),y(points2plot),1);
             else
-                buf.h_plots(end+1)=irc_plot( a_tmp, x,y);    
+                buf.h_plots(end+1)=irc_plot( a_tmp, x(points2plot),y(points2plot));
             end
             buf.legs{end+1}=leg;%#ok
-            text(x(10),y(10)+0.05*(max(y)-min(y)),leg);
             min_y = min([min_y min(y)]);
             max_y = max([max_y max(y)]);
+            if flags.develmode || size(CPs,1)>1
+                buf.ht(end+1) = text(x(10),min(max_y,y(10)+0.05*(max_y-min_y)),leg,'FontSize',label_fontsize);
+            end
         end
-        if icycle==1, fig_desc='epsilon';, else fig_desc='epsilonCHB';, end
-        cur_axis = PlLim.correctlimit(fig_desc,[min_x max_x min_y max_y]);
-        my_axis(cur_axis,fig_desc,cutoffs);
+        if icycle==1, fig_desc='epsilon'; else fig_desc='epsilonCHB'; end
+        params={};
+        params.flags=flags;
+        params.limits = PlLim.correctlimit(fig_desc,[min_x max_x min_y max_y]);
+        my_axis(params,fig_desc,cutoffs,l_ind);
+        movetexts(buf);
         if isfield(flags,'semilogy_for_ellipticity') && flags.semilogy_for_ellipticity
             set(a_tmp,'YScale','log');
         end
-        grid off
-        set(a_tmp,'Box','on','XMinorTick','on','YMinorTick','on');
-        xlabel(a_tmp,xlabel_str);
-        ylabel(a_tmp,'ellipticity');
         if isfield(flags,'develmode') && flags.develmode
             legend(buf.h_plots, buf.legs, 'FontSize',7, 'Location','Best');
         end
-        print(f_tmp,'-dpsc2', '-append', '-r300', psfile);        
+        
+        fig_name = [complextype '_' fig_desc '_' cur_method];
+        set(gcf,'Name',fig_name,'FileName',fig_name);
+        orient landscape
+        export_fig([common_out_dir filesep fig_name],'-eps','-pdf','-transparent', '-r300');
+%        print(f_tmp,'-dpsc2', '-append', '-r300', psfile);        
         set(a_tmp,'YScale','linear');
 
         %------------------------ E_{HB} --------------------------  
         min_y=NaN; max_y=NaN;
-        buf={};buf.h_plots=[];buf.legs={};
-        cla
+        buf={};buf.h_plots=[];buf.legs={};buf.ht=[];
+        cla%reset(gca)
         hold on
         for iCP=1:size(CPs,1) % over all H-bond CPs
             row = CPs(iCP,:);
@@ -1698,7 +1927,7 @@ end %icycle
                 if ~isempty(ircrec.AIM)
                     iii = find( sum( repmat(row,size(ircrec.AIM.atoms,1),1)==ircrec.AIM.atoms, 2) == 2 ); %find appropriate CP index among molecule CPs
                     if iii
-                        if ircrec.AIM.DelSqRho(iii)>-0.020 % -0.020 is for plotting E_HB near critical points
+                        if ircrec.AIM.DelSqRho(iii) > Hbond_DelSqRho_crit_value % -0.020 is for plotting E_HB near critical points
                             y(iirc) = -0.5*CC.encoef*ircrec.AIM.V(iii);%#ok
                         else
                             y(iirc) = NaN;
@@ -1707,46 +1936,120 @@ end %icycle
                 end
             end
 %            leg=[atomlabel(ircdb(1),uniqCPind(iCP,1)) ',' atomlabel(ircdb(1),uniqCPind(iCP,2))];%#ok
-            if ircdb(1).labels{uniqCPind(iCP,1)}=='H'
-                leg=[molpind{row(2)} '' molpind{row(1)}];%#ok
+            if icycle==2, dlm='...'; else dlm=''; end
+            if ircdb(1).labels{row(1)}=='H'
+                leg=[molpind{row(2)} dlm molpind{row(1)}];%#ok
             else
-                leg=[molpind{row(1)} '' molpind{row(2)}];%#ok
+                leg=[molpind{row(1)} dlm molpind{row(2)}];%#ok
             end
             txt = ['E_{HB},k/m (' leg ')'];
             data(1,col)={txt};   data(2:numel(ircdb)+1,col) = num2cell(y); col=col+1;
             
-            pointsign='.-';
-            color=pcolor{mod(iCP-1,numel(pcolor))+1};
             if iCP==1
-                buf.h_plots(end+1)=irc_plot( a_tmp, x,y,1);    
+                buf.h_plots(end+1)=irc_plot( a_tmp, x(points2plot),y(points2plot),1);
             else
-                buf.h_plots(end+1)=irc_plot( a_tmp, x,y);    
+                buf.h_plots(end+1)=irc_plot( a_tmp, x(points2plot),y(points2plot));
             end
             buf.legs{end+1}=leg;%#ok
-            text(x(10),y(10)+0.05*(max(y)-min(y)),leg);
             min_y = min([min_y min(y)]);
             max_y = max([max_y max(y)]);
+            if flags.develmode || size(CPs,1)>1
+                buf.ht(end+1) = text(x(10),min(max_y,y(10)+0.05*(max_y-min_y)),leg,'FontSize',label_fontsize);
+            end
         end
 %        max_y = min([max_y 100]); %cutting off covalent bonds energy range
-        if icycle==1, fig_desc='EHB';, else fig_desc='EHBCHB';, end
-        cur_axis = PlLim.correctlimit(fig_desc,[min_x max_x min_y max_y]);
-        my_axis(cur_axis,fig_desc,cutoffs);
-        grid off
-        set(a_tmp,'Box','on','XMinorTick','on','YMinorTick','on');
-        xlabel(a_tmp,xlabel_str);
-        ylabel(a_tmp,'E_{HB}, kcal/mol');
+        if icycle==1, fig_desc='EHB'; else fig_desc='EHBCHB'; end
+        params={};
+        params.flags=flags;
+        params.limits = PlLim.correctlimit(fig_desc,[min_x max_x min_y max_y]);
+        my_axis(params,fig_desc,cutoffs,l_ind);
+        movetexts(buf);
         if isfield(flags,'develmode') && flags.develmode
             h_leg = legend(buf.h_plots, buf.legs, 'FontSize',7, 'Location','Best');
         end
-        print(f_tmp,'-dpsc2', '-append', '-r300', psfile);        
-        delete(h_leg);
+        
+        fig_name = [complextype '_' fig_desc '_' cur_method];
+        set(gcf,'Name',fig_name,'FileName',fig_name);
+        orient landscape
+        export_fig([common_out_dir filesep fig_name],'-eps','-pdf','-transparent', '-r300');
+%        print(f_tmp,'-dpsc2', '-append', '-r300', psfile);        
+
+        %------------------------ E_{HB} Nikolayenko--------------------------  
+if 0 && icycle==1 %not for CH..B bonds
+        min_y=NaN; max_y=NaN;
+        buf={};buf.h_plots=[];buf.legs={};buf.ht=[];
+        cla%reset(gca)
+        hold on
+        for iCP=1:size(CPs,1) % over all H-bond CPs
+            row = CPs(iCP,:);
+            y=repmat(NaN,size(x));
+            for iirc=1:numel(sort_ind) % over IRC points
+                ircrec=ircdb(sort_ind(iirc));
+                if ~isempty(ircrec.AIM)
+                    iii = find( sum( repmat(row,size(ircrec.AIM.atoms,1),1)==ircrec.AIM.atoms, 2) == 2 ); %find appropriate CP index among molecule CPs
+                    if iii
+% E(OH···O) = -3.09 + 239·?(cp), 
+% E(OH···N) = 1.72 + 142·?(cp), 
+% E(NH···O) = -2.03 + 225·?(cp), 
+% E(OH···C) = -0.29 + 288·?(cp)                        
+%                        if ircrec.AIM.DelSqRho(iii)>-0.020 % -0.020 is for plotting E_HB near critical points
+                            y(iirc) = -2.03 + 225*ircrec.AIM.ro(iii); %E(NH···O)
+%                        else
+%                            y(iirc) = NaN;
+%                        end
+                    end
+                end
+            end
+%            leg=[atomlabel(ircdb(1),uniqCPind(iCP,1)) ',' atomlabel(ircdb(1),uniqCPind(iCP,2))];%#ok
+            if icycle==2, dlm='...'; else dlm=''; end
+            if ircdb(1).labels{row(1)}=='H'
+                leg=[molpind{row(2)} dlm molpind{row(1)}];%#ok
+            else
+                leg=[molpind{row(1)} dlm molpind{row(2)}];%#ok
+            end
+            txt = ['E_{HB},k/m (' leg ')'];
+            data(1,col)={txt};   data(2:numel(ircdb)+1,col) = num2cell(y); col=col+1;
+            
+            if iCP==1
+                buf.h_plots(end+1)=irc_plot( a_tmp, x(points2plot),y(points2plot),1);
+            else
+                buf.h_plots(end+1)=irc_plot( a_tmp, x(points2plot),y(points2plot));
+            end
+            buf.legs{end+1}=leg;%#ok
+            min_y = min([min_y min(y)]);
+            max_y = max([max_y max(y)]);
+            if flags.develmode || size(CPs,1)>1
+                buf.ht(end+1) = text(x(10),min(max_y,y(10)+0.05*(max_y-min_y)),leg,'FontSize',label_fontsize);
+            end
+        end
+%        max_y = min([max_y 100]); %cutting off covalent bonds energy range
+        if icycle==1, fig_desc='EHB_timn'; else fig_desc='illegal'; end
+        params={};
+        params.flags=flags;
+        params.limits = PlLim.correctlimit(fig_desc,[min_x max_x min_y max_y]);
+        my_axis(params,fig_desc,cutoffs,l_ind);
+        movetexts(buf);
+        if isfield(flags,'develmode') && flags.develmode
+            h_leg = legend(buf.h_plots, buf.legs, 'FontSize',7, 'Location','Best');
+        end
+        
+        fig_name = [complextype '_' fig_desc '_' cur_method];
+        set(gcf,'Name',fig_name,'FileName',fig_name);
+        orient landscape
+        export_fig([common_out_dir filesep fig_name],'-eps','-pdf','-transparent', '-r300');
+%        print(f_tmp,'-dpsc2', '-append', '-r300', psfile);       
+end
+
+        if exist('h_leg','var'), delete(h_leg), end;
         
 end %for icycle
+
 
     %plot IRC keypoints extract properties and shapshots  
         [xP,xP_sort_ind]=sort(keypoints.irc);
         ixP=keypoints.inddb(xP_sort_ind);
         xPdesc=keypoints.desc(xP_sort_ind);
+        xPatoms=keypoints.atoms(xP_sort_ind);
         table={};
         row=0;
 
@@ -1768,8 +2071,23 @@ end %for icycle
 %         view(snap_azimut,snap_elevation);
 %         print(f_mol,'-depsc2','-tiff','-r300',[indir filesep fnameshort '_snap_p' int2str(ikey)]);
 %         close(f_mol)
+
+        %next code tested on 1920x1080 resolution
+        scnsize = get(0,'ScreenSize');
+        scnxsize = scnsize(3);
+        scnysize = scnsize(4);
+%         if numel(xP)==6
+%             scnysize = 300;
+%         elseif numel(xP)==9
+%             scnysize = 560;
+%         end
+        pos  = [bdwidth,... 
+                bdwidth,...
+                scnxsize - 2*bdwidth,...
+                scnysize - (topbdwidth + bdwidth)];
+        set(f_tmp, 'Position',pos);
+        cla%reset(gca)    
         
-        cla    
         for ikey=1:numel(xP)
             if isnan(xP(ikey)), continue, end
 
@@ -1782,6 +2100,20 @@ end %for icycle
                 continue;
             end
             iHbonds = find(AIM.is_hbond);
+            if isempty(iHbonds)
+                row=row+1;
+                table(row).irc = ms0.irc;
+                table(row).rho = '-';
+                table(row).deltarho = '-';
+                table(row).eps = '-';
+                table(row).E_HB = '-';
+                table(row).Hbond_desc = '-';
+                table(row).dAB = '-';
+                table(row).dAH = '-';
+                table(row).dHB = '-';
+                table(row).aAHB = '-';
+                table(row).desc = xPdesc(ikey);
+            end
             for iH=1:numel(iHbonds)
                 row=row+1;
                 table(row).irc = ms0.irc;
@@ -1792,13 +2124,14 @@ end %for icycle
 
                 atoms = AIM.atoms(iHbonds(iH),:);
                 HBatoms=[];
+%here bug lives
                 if any(ms0.labels{atoms(1)}~='H') && any(ms0.labels{atoms(2)}~='H') %none of atoms are H
                     disp(['Contact with atoms ' int2str(atoms(1)) ',' int2str(atoms(2)) ' skipped']);
                     continue;
                 elseif any(ms0.labels{atoms(1)}~='H') %second atom is H
-                    HBatoms = [ms0.btB(find(ms0.btA==atoms(2))) ms0.btA(find(ms0.btB==atoms(2))) atoms(2) atoms(1)];%#ok
+                    HBatoms = [ms0.btB(ms0.btA==atoms(2)) ms0.btA(ms0.btB==atoms(2)) atoms(2) atoms(1)];%#ok
                 elseif any(ms0.labels{atoms(2)}~='H') %first atom is H
-                    HBatoms = [ms0.btB(find(ms0.btA==atoms(1))) ms0.btA(find(ms0.btB==atoms(1))) atoms(1) atoms(2)];%#ok
+                    HBatoms = [ms0.btB(ms0.btA==atoms(1)) ms0.btA(ms0.btB==atoms(1)) atoms(1) atoms(2)];%#ok
                 else %both atoms are H
                    disp(['dihydrogen bond with atoms ' int2str(atoms(1)) ',' int2str(atoms(2)) ' skipped']);
                    continue;
@@ -1815,12 +2148,31 @@ end %for icycle
 
             end
 
-            text2plot={}; %distannces to plot on shapshot
+            if ~isempty(xPatoms{ikey}) %cheating - averaging distances
+                d1 = adist(ms0,xPatoms{ikey}(1,1),xPatoms{ikey}(1,2));
+                d2 = adist(ms0,xPatoms{ikey}(2,1),xPatoms{ikey}(2,2));
+                avgd = (d1+d2)/2;
+                
+                if strcmp(complextype,'HypHyp') %hack
+                    avgd2 = (adist(ms0,8,15)+adist(ms0,15,16))/2;
+                end
+            end
+                
+            text2plot={}; %distances to plot on shapshot
             for I=1:size(uniqCPind,1)
                 atoms=uniqCPind(I,:);
-                text2plot(end+1).text = {num2str(adist(ms0,atoms(1),atoms(2)),'%0.3f')};
+                
+
+                if ~isempty(xPatoms{ikey}) && (all(xPatoms{ikey}(1,:)==atoms) || all(xPatoms{ikey}(2,:)==atoms))%cheating
+                    d = avgd;
+                elseif strcmp(complextype,'HypHyp') && ~isempty(xPatoms{ikey}) && (all([8 15]==atoms) || all([15 16]==atoms))
+                    d = avgd2;
+                else
+                    d=adist(ms0,atoms(1),atoms(2));
+                end
+                text2plot(end+1).text = {num2str(d,'%0.3f')};
                 pl_x = sum(ms0.x(atoms))/2;
-                if pl_x>0, pl_x = pl_x-0.2;, else, pl_x = pl_x+0.2;, end
+                if pl_x>0, pl_x = pl_x-0.2; else pl_x = pl_x+0.2; end
                 text2plot(end).x = pl_x;
                 pl_dy = 1.4*(mod(I,2)-0.5); % displacemant to texts do not overlap
 %                 if strncmp(fnameshort,'TS_Hyp-Cyt',10)
@@ -1832,18 +2184,38 @@ end %for icycle
             end
 
             ms1 = ircdb(ixP(ikey));
-            ms1 = createbondtable(ms1);% create bond table w/o H bonds
+%            ms1 = createbondtable(ms1);% create bond table w/o H bonds
+            %using AIM data for plotting bond
+            ms1.btA=AIM.atoms(~AIM.is_hbond,1)';
+            ms1.btB=AIM.atoms(~AIM.is_hbond,2)';
             ms1.HBlist = AIM.atoms(iHbonds,:);
             ms1.text2plot = text2plot;
-            if ikey==3 && strcmp(fnameshort,'TS_Hyp-Cyt')
-                ms1.btA(end+1:end+2) = [8 21];
-                ms1.btB(end+1:end+2) = [26 26];
-            end
+%hacking
+%             if ikey==3 && strcmp(fnameshort,'TS_Hyp-Cyt')
+%                 ms1.btA(end+1:end+2) = [8 21];
+%                 ms1.btB(end+1:end+2) = [26 26];
+%             end
 
             subplot(3,3,ikey)    
             plotmol( ms1, 'r', 1, 0, 0, gca ); %plot shapshot
             axis([-8 8 -4 4]);
-
+            if sum(~isnan(xP))<=6
+                axis_xsz = 0.162; %0.16
+                axis_ysz = 0.16;
+                k=1.20;
+                set(gca,'Position',[(ikey-1)*axis_xsz-0.01 1-axis_ysz*k axis_xsz*k axis_ysz*k]);
+            elseif sum(~isnan(xP))<=9
+                axis_xsz = 1/5; %0.2
+                axis_ysz = 0.2;
+                k=1.24;
+                if ikey<6
+                    set(gca,'Position',[(ikey-1)*axis_xsz-0.02 1-axis_ysz*k axis_xsz*k axis_ysz*k]);
+                else
+                    set(gca,'Position',[(ikey-5.5)*axis_xsz-0.02 1-2*axis_ysz*k axis_xsz*k axis_ysz*k]);
+                end
+            end
+            
+            %rotation hacks
             if strcmp(fnameshort,'TS_Hyp-Cyt_eps4')
                 if ms0.irc<-0.3
                     snap_azimut=0;
@@ -1862,15 +2234,28 @@ end %for icycle
                 snap_xdir=1;
                 snap_ydir=1;
             end
-
-            text( snap_xdir*3, snap_ydir*4.5, ['point ' int2str(ikey) ', IRC = ' num2str(xP(ikey),'%0.2f') ], 'FontSize',8)
-%            text( snap_dir*0, snap_dir*6, xPdesc{ikey}, 'FontSize',7)
             view(snap_azimut,snap_elevation);
 
-        end
-%        print(f_tmp,'-dpsc2', '-append', '-r300', psfile);        
-        print(f_tmp,'-dpng','-r600',[indir filesep fnameshort '_snaps']);
+            fontsz=14;
+            ht = text( snap_xdir*2.9, snap_ydir*3.8, ['point ' int2str(ikey) ', ' xPdesc{ikey} ], 'FontSize',fontsz,'FontWeight','bold'); %#ok<NASGU>
+            ht2 = text( snap_xdir*1, snap_ydir*4.8, num2str(xP(ikey),'%0.2f'), 'FontSize',fontsz,'FontWeight','bold');
+%            text( snap_xdir*0, snap_ydir*6, num2str(xP(ikey),'%0.2f'), 'FontSize',8,'FontAngle','italic','FontWeight','bold');
 
+        end
+
+
+        fig_desc='snaps';
+        fig_name = [complextype '_' fig_desc '_' cur_method];
+        set(gcf,'Name',fig_name,'FileName',fig_name);
+        orient landscape
+       % pack
+        
+%        print(f_tmp,'-dpsc2', '-append', '-r300', psfile);        
+%        print(f_tmp,'-dpng','-r600',[indir filesep fnameshort '_snaps']);
+%        export_fig([indir filesep fnameshort '_snaps'],'-png','-transparent', '-r200');
+
+%        system(sprintf('ps2pdf -dEPSCrop %s.eps %s.pdf',filo,filo));
+        
         tablecell=cell(row+1,11);
         tablecell(1,:)=[{'keypoint'} {'H-bond'} {'IRC'} {'\rho,a.u.'} {'{\Delta}{\rho},a.u.'} {'100*\epsilon'} ...
                         {'d_{AB},A'} {'d_{AH},A'} {'d_{HB},A'} {'{\angle}AHB,\degree'} {'E_{HB},kcal/mol'}];
@@ -1937,9 +2322,8 @@ end %for icycle
         
     end
 
-
+    diary off
 %break;
 
 end %l_ind=1:numfiles
 
-diary off
