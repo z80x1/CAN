@@ -13,16 +13,17 @@ format compact
 pindsdef
 atomsind
 
-global pind;
+%global pind;
 
-%moltype 	= 8 %#ok
-%theory 		= 'dftV2'  %#ok
-%energy_field = 'MP2_6311__G2dfpd';
-%----------------------------------------
-moltype 	= 7 %#ok
-theory 		= 'dftV1'  %#ok
-energy_field = 'MP2_6311__Gdp';
-
+if 0
+    moltype 	= 8 %#ok
+    theory 		= 'dftV2'  %#ok
+    energy_field = 'MP2_6311__G2dfpd';
+elseif 1
+    moltype 	= 7 %#ok
+    theory 		= 'dftV1'  %#ok
+    energy_field = 'MP2_6311__Gdp';
+end
 usedpackage = 'Gaussian'  %#ok
 
 onlyoriginal 	= 1;  
@@ -84,16 +85,26 @@ for iconf=istart:recnum
 %	  zmt(end+1:end+7)={mol.labels{i} mol.iR(i) mol.R(i) mol.ialfa(i) mol.alfa(i) mol.ibeta(i) mol.beta(i)};
 %    end
 %	res(iconf).zmt = zmt;
-    
-    s.(['r' an(mol,order(1)) an(mol,order(2))]) = mol.R(order(2));
 
-    s.(['r' an(mol,order(2)) an(mol,order(3))]) = mol.R(order(3));
-    s.(['a' an(mol,order(1)) an(mol,order(2)) an(mol,order(3))]) = mol.alfa(order(3));
+    if iconf==istart
+        savemol(outdir,mol,3,order);
+    end
     
-    for i=4:numel(order)
-        s.(['r' an(mol,order(i-1)) an(mol,order(i))]) = mol.R(order(i));
-        s.(['a' an(mol,order(i-2)) an(mol,order(i-1)) an(mol,order(i))]) = mol.alfa(order(i));
-        s.(['d' an(mol,order(i-3)) an(mol,order(i-2)) an(mol,order(i-1)) an(mol,order(i))]) = mol.beta(order(i));
+    i=order(2);
+    s.(['r' an(mol,i) an(mol,order(mol.iR(i)))]) = mol.R(i);
+
+    i=order(3);
+    s.(['r' an(mol,i) an(mol,order(mol.iR(i)))]) = mol.R(i);
+    s.(['a' an(mol,i) an(mol,order(mol.iR(i))) an(mol,order(mol.ialfa(i)))]) = mol.alfa(i);
+    
+    for i=order(4:end)
+        iR = order(mol.iR(i));
+        ialfa = order(mol.ialfa(i));
+        ibeta = order(mol.ibeta(i));
+        
+        s.(['r' an(mol,i) an(mol,iR) ]) = mol.R(i);
+        s.(['a' an(mol,i) an(mol,iR) an(mol,ialfa)]) = mol.alfa(i);
+        s.(['d' an(mol,i) an(mol,iR) an(mol,ialfa) an(mol,ibeta)]) = mol.beta(i);
     end
     
     s.DM = mol.gaussian.DM;

@@ -1,4 +1,4 @@
-function res = movetexts(buf)
+function res = movetexts(buf,flags)
 %try to organize nonoverlapping plot labels 
 res=0;
 
@@ -117,6 +117,7 @@ for it=1:numel(exts)
 
                 ok = 1;
                 for it2=1:it-1 %check overlaping with prev organized extents
+                    if exts(it2).disabled, continue, end;
                     if rectint([exts(it2).xstart exts(it2).ystart exts(it2).extent(3) exts(it2).extent(4)],...
                                [exts(it).xstart exts(it).ystart exts(it).extent(3) exts(it).extent(4)] ) > 0 %check intersection area
                         ok = 0;
@@ -143,11 +144,13 @@ end %it=1:numel(exts)
 disp(['Successfully moved:' int2str([exts.success])])
 
 for it=1:numel(buf.ht)
-    if exts(it).disabled == 1
-        disp(['Label for similar plot deleted: ' exts(it).str])
-        delete(exts(it).ht);
-        disp(['similar plot deleted: ' exts(it).str])
-        delete(exts(it).h_plots);
+    if (exts(it).disabled == 1) 
+        if ~flags.develmode %in devel mode move nothing
+            disp(['Label for similar plot deleted: ' exts(it).str])
+            delete(exts(it).ht);
+            disp(['similar plot deleted: ' exts(it).str])
+            delete(exts(it).h_plots);
+        end
     else
         set(exts(it).ht,'Position',[exts(it).xstart exts(it).ystart 0], ...
             'HorizontalAlignment',exts(it).halign, 'VerticalAlignment',exts(it).valign);

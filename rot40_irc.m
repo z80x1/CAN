@@ -84,7 +84,7 @@ bondlist=[];
 anglist=[];
 
 %-------------------------------------------------------------------
-flags.develmode = 0;
+flags.develmode = 1;
 flags.irc_tick_interval = NaN; %automatically
 
 flplot=1    %#ok
@@ -103,15 +103,25 @@ for i=1:numel(molpind)
     molpind{i}='';
 end
 
+%complextype='A_taut-A'; methods=[{'b3lyp_vac'}];
+complextype='Hyp_taut-Hyp'; methods=[{'b3lyp_eps4'}];
+%complextype='Hyp_taut-Hyp'; methods=[{'b3lyp_vac'}];
+%complextype='AC'; methods=[{'mp2_vac'}];
+%complextype='AC'; methods=[{'b3lyp_eps4'}];
+%complextype='AC'; methods=[{'b3lyp_vac'}];
+%complextype='GT'; methods=[{'b3lyp_vac'}];
+%complextype='GT'; methods=[{'b3lyp_eps4'}];
 
-complextype='HypHyp'; methods=[{'b3lyp_vac'},{'b3lyp_eps4'}];
-%complextype='HypCyt'; methods=[{'b3lyp_vac'},{'b3lyp_eps4'}];
-%complextype='HypThy'; methods=[{'b3lyp_vac'},{'b3lyp_eps4'}];
 %complextype='GC'; methods=[{'b3lyp_vac'},{'b3lyp_eps4'},{'mp2_vac'}];
 %complextype='GC'; methods=[{'mp2_vac'}];
+%complextype='Hyp-dimer'; methods=[{'b3lyp_vac'},{'b3lyp_eps4'}];
+%complextype='Hyp-dimer'; methods=[{'b3lyp_vac'}];
+%complextype='HypHyp'; methods=[{'b3lyp_vac'},{'b3lyp_eps4'}];
+%complextype='HypCyt'; methods=[{'b3lyp_vac'},{'b3lyp_eps4'}];
+%complextype='HypThy'; methods=[{'b3lyp_vac'},{'b3lyp_eps4'}];
 %complextype='AT'; methods=[{'b3lyp_vac'},{'b3lyp_eps4'},{'mp2_vac'}];
 
-common_out_dir = 'E:\work\Brovarets\121106_dE_dIRC';
+common_out_dir = 'E:\work\Brovarets\plots';
 if ~(exist(common_out_dir,'dir')==7)
      mkdir(common_out_dir);
 end
@@ -264,9 +274,55 @@ for l_ind=1:numel(methods)
     %        cutoffs=[-5.52 -0.28 -0.45 -0.62 0.00 -0.06 0.17 0.39 6.37];
         end
 
+    elseif strcmp(complextype,'Hyp-dimer')
+        bondlist = [13 25]; %R_HH
+        anglist  = [ 3 13 25; 13 25 24]; %alpha1, alpha2
+        limits_filename = 'E:\work\Brovarets\120216_IRC_Hyp\Hyp-dimer\Hyp-dimer_limits.mat';
+        IRCdesc = [{'(Hyp \bullet Hyp)'},{'(TS_{Hyp \bullet Hyp \leftrightarrow Hyp* \bullet Hyp*})'},{'(Hyp* \bullet Hyp*)'}];
+        molpind{7}='C6';
+        molpind{8}='O6';
+        molpind{9}='N1';
+        molpind{11}='C2';
+        molpind{10}='H';
+        molpind{14}='H';
+        molpind{16}='N1';%''
+        molpind{17}='C2';%''
+        molpind{27}='C6';%''
+        molpind{28}='O6';%''
+        molpind{15}='H';%''
+        molpind{18}='H';%''
+        molpind{3}='N9';
+        molpind{13}='H9';
+        molpind{24}='N9';%''
+        molpind{25}='H9';%''
+        if strcmp(cur_method,'b3lyp_vac_nontight')
+            indir='E:\work\Brovarets\120216_IRC_Hyp\Hyp-dimer\Hyp-dimer'  %#ok
+            workname='irc_b3lyp'%#ok
+            limits_filename = 'E:\work\Brovarets\120216_IRC_Hyp\Hyp-dimer\Hyp-dimer\Hyp-dimer_limits.mat';
+            flags.semilogy_for_ellipticity=1;
+    %        iCPcutoff=[1 3 2 4];
+            iCPcutoff=1:4;
+            cutoffs=[-34.41 -28.58 -2.36  0.00  0.23 34.72];
+        elseif strcmp(cur_method,'b3lyp_vac')
+            indir='E:\work\Brovarets\120216_IRC_Hyp\Hyp-dimer\Hyp-dimer_tight_int' %#ok<NOPTS>
+            workname='irc_b3lyp_tight_int'%#ok
+            limits_filename = 'E:\work\Brovarets\120216_IRC_Hyp\Hyp-dimer\Hyp-dimer_limits.mat';
+            flags.semilogy_for_ellipticity=1;
+            iCPcutoff=[1 2 4 6];
+            cutoffs=[-36.63 -2.79 -2.67 -2.36  0.00  0.24  0.51  0.73 25.70];
+        elseif strcmp(cur_method,'b3lyp_eps4')
+            indir='E:\work\Brovarets\120216_IRC_Hyp\Hyp-dimer\Hyp-dimer_tight_int_eps4' %#ok<NOPTS>
+            workname='irc_b3lyp_tight_eps4'%#ok
+            flags.semilogy_for_ellipticity=1;
+            iCPcutoff=[1 2 3 4];
+            cutoffs = [-18.87 -0.73 -0.51 -0.25  0.00  4.27  4.57  4.70 23.42];
+        end
+
     elseif strcmp(complextype,'GC')
         bondlist = [14 26];
         anglist  = [ 1 14 26; 15 26 14];
+        IRCdesc = [{'(G \bullet C)'},{'(TS_{G \bullet C \leftrightarrow G* \bullet C*})'},{'(G* \bullet C*)'}];
+        limits_filename = 'E:\work\Brovarets\120411_irc_AT_GC\GC_limits.mat';
         molpind{6}='C6';
         molpind{7}='O6';
         molpind{8}='N1';
@@ -283,31 +339,30 @@ for l_ind=1:numel(methods)
         molpind{14}='H9';
         molpind{15}='N1';
         molpind{26}='H1';
-        IRCdesc = [{'(G \bullet C)'},{'(TS_{G \bullet C \leftrightarrow G* \bullet C*})'},{'(G* \bullet C*)'}];
-
-        limits_filename = 'E:\work\Brovarets\120411_irc_AT_GC\GC_limits.mat';
         if strcmp(cur_method,'b3lyp_vac')
             indir = 'E:\work\Brovarets\120411_irc_AT_GC\b3lyp\GC_tight_int' %#ok<NOPTS>
             workname ='irc_b3lyp_tight_int'%#ok
-    %        iCPcutoff=[1 4 2 3 ];
+            iCPcutoff=[1 2 3 4 ];
+            cutoffs = [-6.46 -0.42 -0.15 0.00 0.00 0.03 0.28 0.50 8.60];
         elseif strcmp(cur_method,'b3lyp_eps4')
             indir='E:\work\Brovarets\120411_irc_AT_GC\b3lyp\GC_eps4_tight_int' %#ok<NOPTS>
             workname ='irc_b3lyp_tight_eps4'%#ok
-            limits_filename = 'E:\work\Brovarets\120216_IRC_Hyp\Hyp-Thy\Hyp-Thy_limits.mat';
-    %        iCPcutoff=[1 4 2 3 ];
+            iCPcutoff=[1 2 3 4 ];
+            cutoffs = [-10.11 -0.46 -0.25 -0.00  0.00  5.90  6.04  6.31  9.29];
         elseif strcmp(cur_method,'mp2_vac')
             indir='E:\work\Brovarets\120411_irc_AT_GC\mp2\GC_MP2' %#ok<NOPTS>
             workname = 'irc120411_mp2' %#ok<NOPTS>
     %        workname='irc120425_mp2_tight'%#ok
-            limits_filename = 'E:\work\Brovarets\120216_IRC_Hyp\Hyp-Thy\Hyp-Thy_limits.mat';
-    %        iCPcutoff=[1 4 2 3 ];
+            iCPcutoff=[1 2 3 4 ];
+            cutoffs = [-6.91 -0.37 -0.09 -0.09 0.00 0.12 0.22 0.46 8.49];
         end
 
     elseif strcmp(complextype,'AT')
-        limits_filename = 'E:\work\Brovarets\120411_irc_AT_GC\AT_limits.mat';
         bondlist = [11 24]; %indexes of edge glicosidic atoms
         anglist  = [ 1 11 24; 15 24 11];
     %    aimbondlist = [8 14];
+        IRCdesc = [{'(A \bullet T)'},{'(TS_{A \bullet T \leftrightarrow A* \bullet T*})'},{'(A* \bullet T*)'}];
+        limits_filename = 'E:\work\Brovarets\120411_irc_AT_GC\AT_limits.mat';
         molpind{6}='N6';
         molpind{7}='N1';
         molpind{8}='C2';
@@ -323,7 +378,6 @@ for l_ind=1:numel(methods)
         molpind{11}='H9';
         molpind{15}='N1';
         molpind{24}='H1';
-        IRCdesc = [{'(A \bullet T)'},{'(TS_{A \bullet T \leftrightarrow A* \bullet T*})'},{'(A* \bullet T*)'}];
         if strcmp(cur_method,'b3lyp_vac')
             indir='E:\work\Brovarets\120411_irc_AT_GC\b3lyp\AT_tight_int_step5';
             workname = 'irc_b3lyp_tight_int' %#ok<NOPTS>
@@ -334,6 +388,160 @@ for l_ind=1:numel(methods)
             indir='E:\work\Brovarets\120411_irc_AT_GC\mp2\AT_MP2';
             workname = 'irc120411_mp2' %#ok<NOPTS>
         end
+
+    elseif strcmp(complextype,'AC')
+        bondlist = [15 24]; %indexes of edge glicosidic atoms
+        anglist  = [ 1 15 24; 23 24 15];
+    %    aimbondlist = [8 14];
+        IRCdesc = [{'(A \bullet C)'},{'(TS_{A \bullet C \leftrightarrow A* \bullet C*})'},{'(A* \bullet C*)'}];
+        limits_filename = 'E:\work\Brovarets\120411_irc_AT_GC\AC_limits.mat';
+         molpind{6}='C6';
+         molpind{7}='O6';
+         molpind{10}='N1';
+         molpind{11}='C2';
+         molpind{17}='N4';
+         molpind{19}='C4';
+         molpind{20}='N3';
+         molpind{21}='C2';
+         molpind{22}='O2';
+         molpind{9}='H_{I}';
+         molpind{16}='H_{II}';
+         molpind{12}='H_{III}';
+         molpind{1}='N9';
+         molpind{15}='H9';
+         molpind{23}='N1';
+         molpind{24}='H1';
+        if strcmp(cur_method,'b3lyp_vac')
+            indir='E:\work\Brovarets\120411_irc_AT_GC\b3lyp\AC_tight_int';
+            workname = 'irc_b3lyp_tight_int' %#ok<NOPTS>
+            iCPcutoff=[1 2 3 4];
+            cutoffs=[-5.85 -1.48 -1.26 -0.98 -0.09 0.00 0.16 0.37 4.07];
+        elseif strcmp(cur_method,'b3lyp_eps4')
+            indir='E:\work\Brovarets\120411_irc_AT_GC\b3lyp\AC_eps4_tight_int';
+            workname ='irc_b3lyp_tight_eps4'%#ok
+            iCPcutoff=[1 2 3 4];
+            cutoffs=[-9.23 -4.07 -3.86 -3.60 -0.08 0.00 0.15 0.37 4.10];
+        elseif strcmp(cur_method,'mp2_vac')
+             indir='E:\work\Brovarets\120411_irc_AT_GC\mp2\AC_mp2';
+             workname = 'irc120411_mp2' %#ok<NOPTS>
+            iCPcutoff=[1 2 3 4];
+            cutoffs=[-6.02 -0.99 -0.76 -0.46 -0.11 0.00 0.13 0.35 4.71];
+        end
+
+    elseif strcmp(complextype,'GT')
+        bondlist = [16 24];
+        anglist  = [ 1 16 24; 23 24 16];
+        IRCdesc = [{'(G \bullet T)'},{'(TS_{G \bullet T \leftrightarrow G* \bullet T*})'},{'(G* \bullet T*)'}];
+        limits_filename = 'E:\work\Brovarets\120411_irc_AT_GC\GT_limits.mat';
+         molpind{6}='C6';
+         molpind{7}='O6';
+         molpind{8}='N1';
+         molpind{10}='C2';
+         molpind{11}='N2';
+         molpind{17}='O4';
+         molpind{19}='C4';
+         molpind{20}='N3';
+         molpind{21}='C2';
+         molpind{22}='O2';
+         molpind{18}='H_{I}';
+         molpind{9}='H_{II}';
+         molpind{12}='H_{III}';
+         molpind{1}='N9';
+         molpind{16}='H9';
+         molpind{23}='N1';
+         molpind{24}='H1';
+        if strcmp(cur_method,'b3lyp_vac')
+            indir = 'E:\work\Brovarets\120411_irc_AT_GC\b3lyp\GT_tight_int_1' %#ok<NOPTS>
+            workname ='irc_b3lyp_tight_int'%#ok
+            iCPcutoff=[1 2 4 5];
+            cutoffs = [-5.36 -1.97 -1.80 -1.61 -0.18 0.00 0.06 0.29 4.35];
+         elseif strcmp(cur_method,'b3lyp_eps4')
+             indir='E:\work\Brovarets\120411_irc_AT_GC\b3lyp\GT_eps4_tight_int' %#ok<NOPTS>
+             workname ='irc_b3lyp_tight_eps4'%#ok
+%             iCPcutoff=[1 2 3 4 ];
+%             cutoffs = [-10.11 -0.46 -0.25 -0.00  0.00  5.90  6.04  6.31  9.29];
+%         elseif strcmp(cur_method,'mp2_vac')
+%             indir='E:\work\Brovarets\120411_irc_AT_GC\mp2\GC_MP2' %#ok<NOPTS>
+%             workname = 'irc120411_mp2' %#ok<NOPTS>
+%     %        workname='irc120425_mp2_tight'%#ok
+%             iCPcutoff=[1 2 3 4 ];
+%             cutoffs = [-6.91 -0.37 -0.09 -0.09 0.00 0.12 0.22 0.46 8.49];
+        end
+
+    elseif strcmp(complextype,'Hyp_taut-Hyp')
+        bondlist = [13 25]; %R_HH
+        anglist  = [ 3 13 25; 13 25 24]; %alpha1, alpha2
+        limits_filename = 'E:\work\Brovarets\120216_IRC_Hyp\Hyp_taut-Hyp\TS_Hyp_taut-Hyp.mat';
+        IRCdesc = [{'(Hyp* \bullet Hyp)'},{'(TS_{Hyp* \bullet Hyp \leftrightarrow Hyp \bullet Hyp*})'},{'(Hyp \bullet Hyp*)'}];
+         molpind{7}='C6';
+         molpind{8}='O6';
+         molpind{9}='N1';
+         molpind{11}='C2';
+         molpind{10}='H';
+         molpind{14}='H';
+         molpind{16}='N1''';%''
+         molpind{17}='C2''';%''
+         molpind{27}='C6''';%''
+         molpind{28}='O6''';%''
+         molpind{15}='H''';%''
+         molpind{18}='H''';%''
+         molpind{3}='N9';
+         molpind{13}='H9';
+         molpind{24}='N9''';%''
+         molpind{25}='H9''';%''
+        if strcmp(cur_method,'b3lyp_vac')
+            indir='E:\work\Brovarets\120216_IRC_Hyp\Hyp_taut-Hyp\b3lyp_tight_int' %#ok<NOPTS>
+            workname='irc_b3lyp_tight_int'%#ok
+            iCPcutoff=[1 4 2 3];
+            cutoffs=[-5.61 -0.28 -0.04 0.00 0.04 0.28 5.87];
+            borders=[-5.61 5.61];
+%          elseif strcmp(cur_method,'b3lyp_eps4')
+%              indir='E:\work\Brovarets\120216_IRC_Hyp\Hyp_taut-Hyp\b3lyp_eps4' %#ok<NOPTS>
+%              workname='irc_b3lyp_tight_eps4'%#ok
+%              iCPcutoff=[1 2 3 4];
+%              cutoffs = [-5.72 -0.35 -0.12 0.00 0.10 0.14 0.33 0.50 5.98];
+         elseif strcmp(cur_method,'b3lyp_eps4')
+             indir='E:\work\Brovarets\120216_IRC_Hyp\Hyp_taut-Hyp\b3lyp_eps4_mirror' %#ok<NOPTS>
+             workname='irc_b3lyp_tight_eps4'%#ok
+%             iCPcutoff=[1 2 3 4];
+%             cutoffs = [-5.72 -0.35 -0.12 0.00 0.10 0.14 0.33 0.50 5.98];
+        end
+    elseif strcmp(complextype,'A_taut-A')
+        bondlist = [13 25]; %R_HH
+        anglist  = [ 3 13 25; 13 25 24]; %alpha1, alpha2
+        limits_filename = 'E:\work\Brovarets\1302_irc_AA\TS_A_taut-A.mat';
+        IRCdesc = [{'(A* \bullet A)'},{'(TS_{A* \bullet A \leftrightarrow A \bullet A*})'},{'(A \bullet A*)'}];
+if 0
+        molpind{7}='C6';
+         molpind{8}='O6';
+         molpind{9}='N1';
+         molpind{11}='C2';
+         molpind{10}='H';
+         molpind{14}='H';
+         molpind{16}='N1''';%''
+         molpind{17}='C2''';%''
+         molpind{27}='C6''';%''
+         molpind{28}='O6''';%''
+         molpind{15}='H''';%''
+         molpind{18}='H''';%''
+         molpind{3}='N9';
+         molpind{13}='H9';
+         molpind{24}='N9''';%''
+         molpind{25}='H9''';%''
+end         
+        if strcmp(cur_method,'b3lyp_vac')
+            indir='E:\work\Brovarets\1302_irc_AA\b3lyp_vac' %#ok<NOPTS>
+            workname='irc_b3lyp_tight_int'%#ok
+%             iCPcutoff=[1 4 2 3];
+%             cutoffs=[-5.61 -0.28 -0.04 0.00 0.04 0.28 5.87];
+%         elseif strcmp(cur_method,'b3lyp_eps4')
+%             indir='E:\work\Brovarets\120216_IRC_Hyp\Hyp-dimer\Hyp-dimer_tight_int_eps4' %#ok<NOPTS>
+%             workname='irc_b3lyp_tight_eps4'%#ok
+%             flags.semilogy_for_ellipticity=1;
+%             iCPcutoff=[1 2 3 4];
+%             cutoffs = [-18.87 -0.73 -0.51 -0.25  0.00  4.27  4.57  4.70 23.42];
+        end
+        
     end
 %-------------------------------------------------------------------
 
@@ -673,11 +881,11 @@ gjf_odir = [baseodir '_gjf'];
     if exist(limits_filename,'file')==2
         load(limits_filename,'PlLim');
     else
-        PlLim=PlotsLimits;
+        PlLim=PlotsLimits; %new instance of class PlotsLimits
     end
     
     [x,sort_ind]=sort([ircdb.irc]);
-    if flags.develmode
+    if flags.develmode || ~isfield(ircdb,'irc_isrefinement')
         points2plot = ones(1,numel(ircdb));
     else
         points2plot = ~[ircdb.irc_isrefinement];
@@ -697,7 +905,7 @@ gjf_odir = [baseodir '_gjf'];
     data(1,col)={txt};   data(2:numel(ircdb)+1,col) = num2cell(y); col=col+1;
     
     if fl_plotpics
-        h_plot = irc_plot(gca,x(points2plot),y(points2plot),1); %#ok<NASGU>
+        h_plot = irc_plot(gca,x(points2plot==1),y(points2plot==1),1); %#ok<NASGU>
         params={};
         params.flags=flags;
         params.limits = PlLim.correctlimit(fig_desc,[min(x) max(x) 0 max(y)]);
@@ -713,8 +921,8 @@ gjf_odir = [baseodir '_gjf'];
     fig_desc = 'diffE_irc';
     txt = '{\delta}E/{\delta}IRC'; 
 
-    xd = x(points2plot);
-    yd = y(points2plot);
+    xd = x(points2plot==1); %#ok<FNDSB> %bug with x(points2plot)
+    yd = y(points2plot==1); %#ok<FNDSB> %bug with x(points2plot)
     [xd, xd_ind] = unique(xd);
     yd = yd(xd_ind);
     y_deriv = deriv(yd)./deriv(xd);
@@ -1253,7 +1461,7 @@ gjf_odir = [baseodir '_gjf'];
         if fl_plotpics
             cla%reset(gca)
             y(y==Inf)=NaN;
-            h_plot = irc_plot( a_tmp, x(points2plot),y(points2plot),1);    
+            h_plot = irc_plot( a_tmp, x(points2plot==1),y(points2plot==1),1);    
             params={};
             params.flags=flags;
             params.limits = PlLim.correctlimit(fig_desc,[min_x max_x min(y) max(y)]);
@@ -1308,9 +1516,9 @@ for icycle=1:2 %2 loops - one for AH...B and one for CH...B bonds
             data(1,col)={txt};   data(2:numel(ircdb)+1,col) = num2cell(y); col=col+1;
             
             if iHB==1
-                buf.h_plots(end+1)=irc_plot( a_tmp, x(points2plot),y(points2plot),1);
+                buf.h_plots(end+1)=irc_plot( a_tmp, x(points2plot==1),y(points2plot==1),1);
             else
-                buf.h_plots(end+1)=irc_plot( a_tmp, x(points2plot),y(points2plot));    
+                buf.h_plots(end+1)=irc_plot( a_tmp, x(points2plot==1),y(points2plot==1));    
             end
             buf.legs{end+1}=leg;%#ok
             min_y = min([min_y min(y)]);
@@ -1324,9 +1532,9 @@ for icycle=1:2 %2 loops - one for AH...B and one for CH...B bonds
         params.flags=flags;
         params.limits = PlLim.correctlimit(fig_desc,[min_x max_x min_y max_y]);
         my_axis(params,fig_desc,cutoffs,l_ind);
-        movetexts(buf);
+        movetexts(buf,flags);
         
-        if isfield(flags,'develmode') && flags.develmode
+        if flags.develmode
             legend(buf.h_plots, buf.legs, 'FontSize',7, 'Location','Best');
         end
 
@@ -1364,9 +1572,9 @@ for icycle=1:2 %2 loops - one for AH...B and one for CH...B bonds
             data(1,col)={txt};   data(2:numel(ircdb)+1,col) = num2cell(y); col=col+1;
             
             if iHB==1
-                buf.h_plots(end+1)=irc_plot( a_tmp, x(points2plot),y(points2plot),1);    
+                buf.h_plots(end+1)=irc_plot( a_tmp, x(points2plot==1),y(points2plot==1),1);    
             else
-                buf.h_plots(end+1)=irc_plot( a_tmp, x(points2plot),y(points2plot));    
+                buf.h_plots(end+1)=irc_plot( a_tmp, x(points2plot==1),y(points2plot==1));    
             end
             buf.legs{end+1}=leg;%#ok
             min_y = min([min_y min(y)]);
@@ -1380,8 +1588,8 @@ for icycle=1:2 %2 loops - one for AH...B and one for CH...B bonds
         params.flags=flags;
         params.limits = PlLim.correctlimit(fig_desc,[min_x max_x min_y max_y]);
         my_axis(params,fig_desc,cutoffs,l_ind);
-        movetexts(buf);
-        if isfield(flags,'develmode') && flags.develmode
+        movetexts(buf,flags);
+        if flags.develmode
             legend(buf.h_plots, buf.legs, 'FontSize',7, 'Location','Best');
         end
         
@@ -1411,9 +1619,9 @@ for icycle=1:2 %2 loops - one for AH...B and one for CH...B bonds
             data(1,col)={txt};   data(2:numel(ircdb)+1,col) = num2cell(y); col=col+1;
             
             if iHB==1
-                buf.h_plots(end+1)=irc_plot( a_tmp, x(points2plot),y(points2plot),1);    
+                buf.h_plots(end+1)=irc_plot( a_tmp, x(points2plot==1),y(points2plot==1),1);    
             else
-                buf.h_plots(end+1)=irc_plot( a_tmp, x(points2plot),y(points2plot));    
+                buf.h_plots(end+1)=irc_plot( a_tmp, x(points2plot==1),y(points2plot==1));    
             end
             buf.legs{end+1}=leg;%#ok
             min_y = min([min_y min(y)]);
@@ -1427,8 +1635,8 @@ for icycle=1:2 %2 loops - one for AH...B and one for CH...B bonds
         params.flags=flags;
         params.limits = PlLim.correctlimit(fig_desc,[min_x max_x min_y max_y]);
         my_axis(params,fig_desc,cutoffs,l_ind);
-        movetexts(buf);
-        if isfield(flags,'develmode') && flags.develmode
+        movetexts(buf,flags);
+        if flags.develmode
             legend(buf.h_plots, buf.legs, 'FontSize',7, 'Location','Best');
         end
         
@@ -1461,9 +1669,9 @@ end %for icycle=1:2
             data(1,col)={txt};   data(2:numel(ircdb)+1,col) = num2cell(y); col=col+1;
             
             if iHB==1
-                buf.h_plots(end+1)=irc_plot( a_tmp, x(points2plot),y(points2plot),1);    
+                buf.h_plots(end+1)=irc_plot( a_tmp, x(points2plot==1),y(points2plot==1),1);    
             else
-                buf.h_plots(end+1)=irc_plot( a_tmp, x(points2plot),y(points2plot));    
+                buf.h_plots(end+1)=irc_plot( a_tmp, x(points2plot==1),y(points2plot==1));    
             end
             buf.legs{end+1}=leg;%#ok
 %            ht = text(x(10),max(y,y(10)+0.05*(max(y)-min(y))),leg,'FontSize',label_fontsize);
@@ -1476,8 +1684,8 @@ end %for icycle=1:2
         params.flags=flags;
         params.limits = PlLim.correctlimit(fig_desc,[min_x max_x min_y max_y]);
         my_axis(params,fig_desc,cutoffs,l_ind);
-        movetexts(buf);
-        if isfield(flags,'develmode') && flags.develmode
+        movetexts(buf,flags);
+        if flags.develmode
             legend(buf.h_plots, buf.legs, 'FontSize',7, 'Location','Best');
         end
 
@@ -1509,9 +1717,9 @@ if 0
             data(1,col)={txt};   data(2:numel(ircdb)+1,col) = num2cell(y); col=col+1;
             
             if iHB==1
-                buf.h_plots(end+1)=irc_plot( a_tmp, x(points2plot),y(points2plot),1);    
+                buf.h_plots(end+1)=irc_plot( a_tmp, x(points2plot==1),y(points2plot==1),1);    
             else
-                buf.h_plots(end+1)=irc_plot( a_tmp, x(points2plot),y(points2plot));    
+                buf.h_plots(end+1)=irc_plot( a_tmp, x(points2plot==1),y(points2plot==1));    
             end
             buf.legs{end+1}=leg;%#ok
 %            text(x(10),max(y,y(10)+0.05*(max(y)-min(y))),leg,'FontSize',label_fontsize);
@@ -1524,8 +1732,8 @@ if 0
         params.flags=flags;
         params.limits = PlLim.correctlimit(fig_desc,[min_x max_x min_y max_y]);
         my_axis(params,fig_desc,cutoffs,l_ind);
-        movetexts(buf);
-        if isfield(flags,'develmode') && flags.develmode
+        movetexts(buf,flags);
+        if flags.develmode
             legend(buf.h_plots, buf.legs, 'FontSize',7, 'Location','Best');
         end
 
@@ -1554,9 +1762,9 @@ end
                 data(1,col)={txt};   data(2:numel(ircdb)+1,col) = num2cell(y); col=col+1;
 
                 if iHB==1
-                    buf.h_plots(end+1)=irc_plot( a_tmp, x(points2plot),y(points2plot),1);    
+                    buf.h_plots(end+1)=irc_plot( a_tmp, x(points2plot==1),y(points2plot==1),1);    
                 else
-                    buf.h_plots(end+1)=irc_plot( a_tmp, x(points2plot),y(points2plot));
+                    buf.h_plots(end+1)=irc_plot( a_tmp, x(points2plot==1),y(points2plot==1));
                 end
                 buf.legs{end+1}=leg;%#ok
                 min_y = min([min_y min(y)]);
@@ -1570,8 +1778,8 @@ end
             params.flags=flags;
             params.limits = PlLim.correctlimit(fig_desc,[min_x max_x min_y max_y]);
             my_axis(params,fig_desc,cutoffs,l_ind);
-            movetexts(buf);
-            if isfield(flags,'develmode') && flags.develmode
+            movetexts(buf,flags);
+            if flags.develmode
                 legend(buf.h_plots, buf.legs, 'FontSize',7, 'Location','Best');
             end
             
@@ -1604,9 +1812,9 @@ end
                 data(1,col)={txt};   data(2:numel(ircdb)+1,col) = num2cell(y); col=col+1;
 
                 if iang==1
-                    buf.h_plots(end+1)=irc_plot( a_tmp, x(points2plot),y(points2plot),1);
+                    buf.h_plots(end+1)=irc_plot( a_tmp, x(points2plot==1),y(points2plot==1),1);
                 else
-                    buf.h_plots(end+1)=irc_plot( a_tmp, x(points2plot),y(points2plot));
+                    buf.h_plots(end+1)=irc_plot( a_tmp, x(points2plot==1),y(points2plot==1));
                 end
                 buf.legs{end+1}=leg;%#ok
 %                text(x(10),max(y,y(10)+0.05*(max(y)-min(y))),leg,'FontSize',label_fontsize);
@@ -1619,8 +1827,8 @@ end
             params.flags=flags;
             params.limits = PlLim.correctlimit(fig_desc,[min_x max_x min_y max_y]);
             my_axis(params,fig_desc,cutoffs,l_ind);
-            movetexts(buf);
-            if isfield(flags,'develmode') && flags.develmode
+            movetexts(buf,flags);
+            if flags.develmode
                 legend(buf.h_plots, buf.legs, 'FontSize',7, 'Location','Best');
             end
             
@@ -1713,9 +1921,9 @@ for icycle=1:2 %2 loops - one for AH...B and one for CH...B bonds
             buf.atoms(end+1,:) = row;
             
             if iCP==1
-                buf.h_plots(end+1)=irc_plot( a_tmp, x(points2plot),y(points2plot),1);
+                buf.h_plots(end+1)=irc_plot( a_tmp, x(points2plot==1),y(points2plot==1),1);
             else
-                buf.h_plots(end+1)=irc_plot( a_tmp, x(points2plot),y(points2plot));
+                buf.h_plots(end+1)=irc_plot( a_tmp, x(points2plot==1),y(points2plot==1));
             end
             buf.legs{end+1}=leg;%#ok
             min_y = min([min_y min(y)]);
@@ -1729,8 +1937,8 @@ for icycle=1:2 %2 loops - one for AH...B and one for CH...B bonds
         params.flags=flags;
         params.limits = PlLim.correctlimit(fig_desc,[min_x max_x min_y max_y]);
         my_axis(params,fig_desc,cutoffs,l_ind);
-        movetexts(buf);
-        if isfield(flags,'develmode') && flags.develmode
+        movetexts(buf,flags);
+        if flags.develmode
             legend(buf.h_plots, buf.legs, 'FontSize',7, 'Location','Best');
         end
         
@@ -1793,9 +2001,9 @@ end %icycle
             buf.title(end+1) = {txt};
             
             if iCP==1
-                buf.h_plots(end+1)=irc_plot( a_tmp, x(points2plot),y(points2plot),1);
+                buf.h_plots(end+1)=irc_plot( a_tmp, x(points2plot==1),y(points2plot==1),1);
             else
-                buf.h_plots(end+1)=irc_plot( a_tmp, x(points2plot),y(points2plot));
+                buf.h_plots(end+1)=irc_plot( a_tmp, x(points2plot==1),y(points2plot==1));
             end
             buf.legs{end+1}=leg;%#ok
             min_y = min([min_y min(y)]);
@@ -1809,8 +2017,8 @@ end %icycle
         params.flags=flags;
         params.limits = PlLim.correctlimit(fig_desc,[min_x max_x min_y max_y]);
         my_axis(params,fig_desc,cutoffs,l_ind);
-        movetexts(buf);
-        if isfield(flags,'develmode') && flags.develmode
+        movetexts(buf,flags);
+        if flags.develmode
             legend(buf.h_plots, buf.legs, 'FontSize',7, 'Location','Best');
         end
         
@@ -1883,9 +2091,9 @@ end %icycle
             data(1,col)={txt};   data(2:numel(ircdb)+1,col) = num2cell(y); col=col+1;
             
             if iCP==1
-                buf.h_plots(end+1)=irc_plot( a_tmp, x(points2plot),y(points2plot),1);
+                buf.h_plots(end+1)=irc_plot( a_tmp, x(points2plot==1),y(points2plot==1),1);
             else
-                buf.h_plots(end+1)=irc_plot( a_tmp, x(points2plot),y(points2plot));
+                buf.h_plots(end+1)=irc_plot( a_tmp, x(points2plot==1),y(points2plot==1));
             end
             buf.legs{end+1}=leg;%#ok
             min_y = min([min_y min(y)]);
@@ -1899,11 +2107,11 @@ end %icycle
         params.flags=flags;
         params.limits = PlLim.correctlimit(fig_desc,[min_x max_x min_y max_y]);
         my_axis(params,fig_desc,cutoffs,l_ind);
-        movetexts(buf);
+        movetexts(buf,flags);
         if isfield(flags,'semilogy_for_ellipticity') && flags.semilogy_for_ellipticity
             set(a_tmp,'YScale','log');
         end
-        if isfield(flags,'develmode') && flags.develmode
+        if flags.develmode
             legend(buf.h_plots, buf.legs, 'FontSize',7, 'Location','Best');
         end
         
@@ -1946,9 +2154,9 @@ end %icycle
             data(1,col)={txt};   data(2:numel(ircdb)+1,col) = num2cell(y); col=col+1;
             
             if iCP==1
-                buf.h_plots(end+1)=irc_plot( a_tmp, x(points2plot),y(points2plot),1);
+                buf.h_plots(end+1)=irc_plot( a_tmp, x(points2plot==1),y(points2plot==1),1);
             else
-                buf.h_plots(end+1)=irc_plot( a_tmp, x(points2plot),y(points2plot));
+                buf.h_plots(end+1)=irc_plot( a_tmp, x(points2plot==1),y(points2plot==1));
             end
             buf.legs{end+1}=leg;%#ok
             min_y = min([min_y min(y)]);
@@ -1963,8 +2171,8 @@ end %icycle
         params.flags=flags;
         params.limits = PlLim.correctlimit(fig_desc,[min_x max_x min_y max_y]);
         my_axis(params,fig_desc,cutoffs,l_ind);
-        movetexts(buf);
-        if isfield(flags,'develmode') && flags.develmode
+        movetexts(buf,flags);
+        if flags.develmode
             h_leg = legend(buf.h_plots, buf.legs, 'FontSize',7, 'Location','Best');
         end
         
@@ -2011,9 +2219,9 @@ if 0 && icycle==1 %not for CH..B bonds
             data(1,col)={txt};   data(2:numel(ircdb)+1,col) = num2cell(y); col=col+1;
             
             if iCP==1
-                buf.h_plots(end+1)=irc_plot( a_tmp, x(points2plot),y(points2plot),1);
+                buf.h_plots(end+1)=irc_plot( a_tmp, x(points2plot==1),y(points2plot==1),1);
             else
-                buf.h_plots(end+1)=irc_plot( a_tmp, x(points2plot),y(points2plot));
+                buf.h_plots(end+1)=irc_plot( a_tmp, x(points2plot==1),y(points2plot==1));
             end
             buf.legs{end+1}=leg;%#ok
             min_y = min([min_y min(y)]);
@@ -2028,8 +2236,8 @@ if 0 && icycle==1 %not for CH..B bonds
         params.flags=flags;
         params.limits = PlLim.correctlimit(fig_desc,[min_x max_x min_y max_y]);
         my_axis(params,fig_desc,cutoffs,l_ind);
-        movetexts(buf);
-        if isfield(flags,'develmode') && flags.develmode
+        movetexts(buf,flags);
+        if flags.develmode
             h_leg = legend(buf.h_plots, buf.legs, 'FontSize',7, 'Location','Best');
         end
         
@@ -2250,11 +2458,12 @@ end %for icycle
         orient landscape
        % pack
         
-%        print(f_tmp,'-dpsc2', '-append', '-r300', psfile);        
-%        print(f_tmp,'-dpng','-r600',[indir filesep fnameshort '_snaps']);
-%        export_fig([indir filesep fnameshort '_snaps'],'-png','-transparent', '-r200');
-
+       if exist('cutoffs','var') %saving snapshots only if we have something to save
+%           print(f_tmp,'-dpsc2', '-append', '-r300', psfile);        
+            print(f_tmp,'-dpng','-r600',[indir filesep fnameshort '_snaps']);
+%           export_fig([indir filesep fnameshort '_snaps'],'-png','-transparent', '-r200');
 %        system(sprintf('ps2pdf -dEPSCrop %s.eps %s.pdf',filo,filo));
+       end
         
         tablecell=cell(row+1,11);
         tablecell(1,:)=[{'keypoint'} {'H-bond'} {'IRC'} {'\rho,a.u.'} {'{\Delta}{\rho},a.u.'} {'100*\epsilon'} ...

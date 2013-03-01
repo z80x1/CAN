@@ -14,12 +14,12 @@ atomsind
 
 %--------- data section -------------------------------
 T=298.15         %#ok Temperature
-moltype = 7  %#ok
+moltype = 312  %#ok
 %usedpackage='NWChem'
 %usedpackage='xyz'
 usedpackage='Gaussian'  %#ok
 %theory='mp2ccpVDZ'
-theory='dftV3bis'  %#ok
+theory='dftV3'  %#ok
 %theory='dftV2'  %#ok
 %theory='pair1003'  %#ok
 %theory='cryst'  %#ok

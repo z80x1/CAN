@@ -38,7 +38,7 @@ if(nargin == 0)
     sdesc={};
 
   %---------------
-    workname='r391'  %#ok
+    workname='r312'  %#ok
     onlyoriginal=1  %#ok % process db with only original conformations
     theory='dftV3'  %#ok
   %---------------
@@ -267,6 +267,20 @@ else %plotting specified structure
                 Hblist=[{'pH31'},{'bO2'};{'pH51'},{'bO2'}];
               case 'AbbcS'
                 Hblist=[{'pH31'},{'bO2'}];
+              otherwise
+                Hblist=[];
+              end
+            elseif strcmp(workname,'r112')
+              switch nm{get(lst,'Value')}
+              case 'BabC'
+                Hblist=[{'bH8'},{'pO5'}];
+              otherwise
+                Hblist=[];
+              end
+            elseif strcmp(workname,'r312')
+              switch nm{get(lst,'Value')}
+              case 'BabC'
+                Hblist=[{'bH8'},{'pO5'}];
               otherwise
                 Hblist=[];
               end

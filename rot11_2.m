@@ -22,8 +22,10 @@ dbchangedunique=0;
 %CD.dbdir='D:\zhr\_diplom\work\Alla\090114\r312';
 %CD.datadir=CD.dbdir;
 
-indir=[CD.datadir filesep 'r7\r7_dftV3bis'];
+%indir=[CD.datadir filesep 'r7\r7_dftV3bis'];
 %indir='D:\_diplom\temp\r91006_restart_bad_sugar.gator';
+indir='E:\work\1301-1106_d4A+d4Geng.yurenko\130107\table4\r112r312idealSP\r112';
+
 %--------- data section end ---------------------------
 
 
@@ -43,10 +45,10 @@ indir                   %#ok
 diaryfname              %#ok
 
 %--------- data section -------------------------------
-moltype=7	             %#ok
+moltype=112	             %#ok
 usedpackage='Gaussian'  %#ok
 %theory='cryst'         %#ok 
-theory='dftV3bis'          %#ok theory level used for GO
+theory='dftV3'          %#ok theory level used for GO
 %dftV2 - b3lyp/6-31G(d,p)
 %dftV3 - b3lyp/6-31G(d,p) DB with 4 syn/anti states
 %dftV3bis - b3lyp/6-31G(d,p) opt=(tight) Int=UltraFine 2010-0118
@@ -61,12 +63,12 @@ dbsuffix=''
 
 flexacttitle=1          %use for work identification exact match of worknames or inclusion only
 
-updatedb      = 0       %#ok %true if updating existing structures
+updatedb      = 1       %#ok %true if updating existing structures
 savedb        = 1       %#ok %true for save database after processing
 processerrors = 0       %#ok %true for processing datafiles abnormally terminated
-task.opt      = 1;      %true if files to process contains GO data
-task.freq     = 1;      %true if files to process contains FC data
-task.energy   = 0;      %true if files to process contains SP data
+task.opt      = 0;      %true if files to process contains GO data
+task.freq     = 0;      %true if files to process contains FC data
+task.energy   = 1;      %true if files to process contains SP data
 %task.energyfieldname='MP2_6311Gdp';
 task.energyfieldname='MP2_6311__Gdp';
 %task.energyfieldname='MP2_6311__G2dfpd'; %name of field to write energy data in

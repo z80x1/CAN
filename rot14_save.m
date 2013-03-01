@@ -12,19 +12,19 @@ clear
 atomsind
 
 %--------------------------
-moltype=7  %#ok
+moltype=312  %#ok
 %theory='mp2V2'  %#ok
-theory='dftV3bis'  %#ok
+theory='dftV3'  %#ok
 dbsuffix=''
 onlyoriginal=1;  % process db with only original conformations
 fl_onlyY=0  %export only records with new='Y'
 fl_onlyT=0  %export only records with new='T'
 
-workname='r7_dftV3bis_SP' %#ok %only for flexportgeom=0
+workname='r31208SP' %#ok %only for flexportgeom=0
 
 flexportgeom=0 %#ok choose right output directory
 if flexportgeom
-    savemode.xyz   = 1; 
+    savemode.xyz   = 0; 
     savemode.zmt   = 1;
     savemode.gsxyz = 0; %for this option templatefile is needed
     savemode.gszmt = 0; %for this option templatefile is needed
