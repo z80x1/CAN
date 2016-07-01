@@ -1,0 +1,5 @@
+#rb3lyp/6-31g(d,p) opt=(GDIIS,MaxCycle=40)
+
+rc24 G03: dUrd 94 confs reoptimizing with isotope change NH5 -> ND5
+
+0 1

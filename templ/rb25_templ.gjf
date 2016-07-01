@@ -1,0 +1,5 @@
+#rb3lyp/6-311++g(d,p) opt=(MaxCycle=20) scrf=(PCM,solvent=h2o) output=wfn
+
+rb25 G03: d6AC GO reopt on rb3lyp/6-311++g(d,p) in H2O by PCM
+
+0 1

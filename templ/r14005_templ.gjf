@@ -1,0 +1,5 @@
+#rb3lyp/6-31g(d,p) opt=(GDIIS,MaxCycle=70,tight)
+
+r14005 G03: Adenosine (A) GO #2
+
+0 1

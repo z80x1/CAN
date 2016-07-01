@@ -1,0 +1,6 @@
+%chk=
+#rmp2/6-31g(d,p) opt=(GDIIS,MaxCycle=60) Int=UltraFine output=wfn
+
+r8zp G03: 1'2'ribose GO rmp2/6-31g(d,p) #2
+
+0 1

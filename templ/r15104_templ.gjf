@@ -1,0 +1,7 @@
+%chk=
+%NoSave
+#P rb3lyp/6-31++g(d,p) opt=(GDIIS,MaxCycle=70) Int=UltraFine
+
+r15104 G03: dAP GO at dftV4 #1
+
+0 1

@@ -1,0 +1,7 @@
+%chk=
+%NoSave
+#rb3lyp/6-31g(d,p) opt=(GDIIS,MaxCycle=60) Int=UltraFine 
+
+r931 G03: dCyd additional GO based on new conformers after chi splitting A-S -> BC-TV
+
+0 1

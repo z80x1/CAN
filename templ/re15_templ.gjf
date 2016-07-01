@@ -1,0 +1,6 @@
+%chk=
+#rb3lyp/6-31g(d,p) opt=(GDIIS,MaxCycle=70) Int=UltraFine
+
+re15 G03: 6AC GO #12
+
+0 1

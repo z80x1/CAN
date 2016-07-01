@@ -1,0 +1,6 @@
+%chk=
+#rb3lyp/6-31++g(d,p) opt=(MaxCycle=40) output=wfn Int=UltraFine
+
+r7y G03: 1'ribose GO reopt on rb3lyp/6-31++g(d,p) ultrafine
+
+0 1

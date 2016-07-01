@@ -1,0 +1,5 @@
+#rb3lyp/6-31g(d,p) opt=(CalcFC,GDIIS,MaxCycle=40)
+
+rf13 G03: dA GO additional #6
+
+0 1

@@ -1,0 +1,5 @@
+#mp2/6-31G(d,p) opt=(MaxCycle=40,tight,GDIIS) output=wfn
+
+r60102 G03: DNA nucleoside's forms reotimising on mp2/6-31G(d,p)
+
+0 1

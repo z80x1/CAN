@@ -1,0 +1,5 @@
+#rb3lyp/gen opt=(GDIIS,MaxCycle=60) Int=UltraFine output=wfn
+
+r621xx G03: some text
+
+0 1

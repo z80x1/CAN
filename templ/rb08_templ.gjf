@@ -1,0 +1,5 @@
+#rb3lyp 6-31g(d,p) opt=(QST2,MaxCycle=50) output=wfn
+
+rb08 Gaussian: AC6 NH2 group : planar structure trying to find transition state
+
+0 1

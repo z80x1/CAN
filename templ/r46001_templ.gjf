@@ -1,0 +1,5 @@
+#rb3lyp/6-31g(d,p) opt=(GDIIS,MaxCycle=60) output=wfn freq
+
+r46001 G03: Thymine crystal cell GO 
+
+0 1

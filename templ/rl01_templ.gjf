@@ -1,0 +1,5 @@
+#rb3lyp/6-31g(d,p) opt=(CalcFC,GDIIS,MaxCycle=70)
+
+rl01 Gaussian: 2'deoxy-5azacytidine (d5AC) GO
+
+0 1

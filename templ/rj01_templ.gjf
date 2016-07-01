@@ -1,0 +1,5 @@
+#rb3lyp/6-31g(d,p) opt=(CalcFC,GDIIS,MaxCycle=70)
+
+rj01 Gaussian: 2'deoxy-5azauridine (d5AU) GO
+
+0 1

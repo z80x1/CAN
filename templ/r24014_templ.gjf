@@ -1,0 +1,5 @@
+#rb3lyp/6-31g(d,p) opt=(GDIIS,MaxCycle=70,tight)
+
+r24014 G03: Cytidine (Cyt) GO #8
+
+0 1

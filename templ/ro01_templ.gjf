@@ -1,0 +1,5 @@
+#rb3lyp/6-31g(d,p) opt=(CalcFC,GDIIS,MaxCycle=50)
+
+ro01 Gaussian: 3'5'P 1'2'deoxyribose GO
+
+0 1

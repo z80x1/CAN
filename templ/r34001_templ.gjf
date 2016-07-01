@@ -1,0 +1,5 @@
+#rb3lyp/6-31g(d,p) opt=(GDIIS,MaxCycle=70,tight)
+
+r34001 G03: riboGuo (Guo) GO #1
+
+0 1

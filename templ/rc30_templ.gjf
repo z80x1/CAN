@@ -1,0 +1,6 @@
+%Chk=
+#scan rb3lyp/6-31g(d,p) Int=UltraFine
+
+rc30 G03: dU: find E(beta) with rigid PES scan 
+
+0 1

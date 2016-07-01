@@ -1,0 +1,5 @@
+#rb3lyp/6-311++g(d,p) opt=(MaxCycle=20) output=wfn
+
+rb24 G03: d6AC GO reopt on rb3lyp/6-311++g(d,p) var#3
+
+0 1

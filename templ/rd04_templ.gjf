@@ -1,0 +1,5 @@
+#rb3lyp/6-31g(d,p) opt=(CalcFC,GDIIS,MaxCycle=50)
+
+rd04 Gaussian: dThymidine GO analysis additional 2
+
+0 1

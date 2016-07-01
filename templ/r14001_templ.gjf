@@ -1,0 +1,5 @@
+#rb3lyp/6-31g(d,p) opt=(GDIIS,MaxCycle=70,tight)
+
+r14001 G03: riboAdo (Ado) GO #1
+
+0 1

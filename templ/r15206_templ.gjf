@@ -1,0 +1,7 @@
+%chk=
+%NoSave
+#rb3lyp/6-31g(d,p) opt=(GDIIS,MaxCycle=60) Int=UltraFine output=wfn
+
+r15206 G03: 2'deoxy-8-oxo-adenosine GO #4
+
+0 1

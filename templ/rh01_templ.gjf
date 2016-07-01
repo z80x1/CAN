@@ -1,0 +1,5 @@
+#rb3lyp/6-31g(d,p) opt=(CalcFC,GDIIS,MaxCycle=70)
+
+rh01 Gaussian: 2'deoxy-6azauridine (d6AU) GO
+
+0 1

@@ -1,0 +1,5 @@
+#rb3lyp/6-31g(d,p) opt=(CalcFC,GDIIS,MaxCycle=70)
+
+ri01 Gaussian: 2'deoxy-6azathymidine (d6AT) GO
+
+0 1

@@ -1,0 +1,6 @@
+%chk=
+#rb3lyp/6-311++g(d,p) opt=(MaxCycle=30) output=wfn
+
+r7w G03: 1'ribose GO reopt on rb3lyp/6-311++g(d,p)
+
+0 1

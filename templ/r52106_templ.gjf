@@ -1,0 +1,6 @@
+%chk=
+#P rb3lyp/6-31g(d,p) opt=(GDIIS,MaxCycle=70,tight) Int=UltraFine
+
+r52106 G03: Br5 dUridine  GO #3
+
+0 1

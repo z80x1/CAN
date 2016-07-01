@@ -1,0 +1,6 @@
+%chk=
+#rmp2/6-311++g(d,p) output=wfn
+
+r8zs G03: 1'2'ribose SP mp2/6-311++g(d,p) on rmp2/6-31g(d,p) (mp2V2)
+
+0 1

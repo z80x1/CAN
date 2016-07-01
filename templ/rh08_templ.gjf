@@ -1,0 +1,6 @@
+%chk=
+#rb3lyp/6-31g(d,p) opt=(GDIIS,MaxCycle=60) Int=UltraFine
+
+rh08 G03: d6AU GO #3
+
+0 1

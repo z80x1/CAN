@@ -1,0 +1,7 @@
+%chk=
+%nosave
+#rb3lyp/6-31g(d,p) popt=(MaxCycle=70)
+
+rx13 dC,dT,dA,dG optimizing with constrained chi: for A-form -158.9deg, for B-form -101.9deg
+
+0 1

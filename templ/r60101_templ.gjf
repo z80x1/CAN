@@ -1,0 +1,5 @@
+#rb3lyp/cc-pVTZ opt=(MaxCycle=40,tight,GDIIS) output=wfn
+
+r60101 G03: DNA nucleoside's forms reotimising on rb3lyp/ccpVTZ
+
+0 1

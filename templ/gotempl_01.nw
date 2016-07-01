@@ -1,0 +1,41 @@
+title "Ribose conformational analysis"
+
+start r7b_
+echo
+print default
+#scratch_dir /mnt/work/zhr/var
+#permanent_dir /net/ss20-1/mnt/work/zhr/perm
+#memory 300 mb
+
+geometry units an
+symmetry c1
+end
+
+dft
+#  grid fine
+  direct
+  mult 1
+  iterations 70
+end
+
+driver
+  maxiter 150
+end
+
+basis "ao basis" cartesian print segment
+*  library "6-31G**"
+end
+
+basis "cd basis"
+ * library "Ahlrichs Coulomb Fitting"
+end
+
+task dft optimize
+
+property
+  DIPOLE
+end
+
+task dft property
+    
+task esp

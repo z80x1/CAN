@@ -1,0 +1,7 @@
+%chk=
+%NoSave
+#rb3lyp/6-31g(d,p) opt=(GDIIS,MaxCycle=60) Int=UltraFine 
+
+rf31 G03: dAdo additional GO based on r161 new conformers (chi splitting A-S -> BC-TV) #2
+
+0 1

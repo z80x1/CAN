@@ -1,0 +1,46 @@
+title "Ribose conformational analysis: energy"
+
+start r7k_
+echo
+print default
+scratch_dir c:\\var
+permanent_dir .\\perm
+memory 200 mb
+
+geometry units an
+symmetry c1
+end
+
+dft
+#  grid fine
+#  direct
+  mult 1
+  iterations 70
+  convergence energy 5e-6
+  convergence density 2e-5
+end
+
+basis "ao basis" cartesian print segment
+*  library "6-31G**"
+end
+
+basis "cd basis"
+ * library "Ahlrichs Coulomb Fitting"
+end
+
+freq
+end
+
+#task dft freq
+
+basis "ao basis" cartesian print segment
+*  library "6-311++G**"
+end
+
+task dft energy
+
+basis "ao basis" cartesian print segment
+*  library "6-311++G**"
+end
+
+task mp2 energy

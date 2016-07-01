@@ -1,0 +1,5 @@
+#rmp2/6-31g(d,p) opt=(GDIIS,MaxCycle=70)
+
+r8v_3 G03: 1'2'ribose reoptimizing on MP2
+
+0 1

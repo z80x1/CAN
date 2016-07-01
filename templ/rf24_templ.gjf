@@ -1,0 +1,6 @@
+%chk=
+#rb3lyp/6-31g(d,p) freq
+
+rf24 G03: dAdo FC recal with chk saving
+
+0 1

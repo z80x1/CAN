@@ -1,0 +1,5 @@
+#b3lyp/6-31g(d,p) output=wfn
+
+rf18 G03: dG WFN production
+
+0 1

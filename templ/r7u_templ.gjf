@@ -1,0 +1,5 @@
+#rb3lyp/6-31g(d,p) opt=(GDIIS,MaxCycle=70,tight)
+
+r7u G03: 1'ribose GO #N
+
+0 1

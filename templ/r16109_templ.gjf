@@ -1,0 +1,7 @@
+%chk=
+%NoSave
+#rb3lyp/6-31g(d,p) opt=(GDIIS,MaxCycle=60) Int=UltraFine 
+
+r16109 G03: 2'deoxypurine GO #6
+
+0 1

@@ -1,0 +1,6 @@
+%RWF=var01,2000MB,var02,2000MB,var03,2000MB
+#rmp2/6-31g(d,p) freq
+
+r8zf G03 1'2'deoxyribose FC on MP2/6-31Gdp GO
+
+0 1
